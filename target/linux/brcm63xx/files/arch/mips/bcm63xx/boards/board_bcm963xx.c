@@ -41,7 +41,7 @@ static struct board_info board;
  * known 6338 boards
  */
 #ifdef CONFIG_BCM63XX_CPU_6338
-static struct board_info __initdata board_96338gw = {
+static struct board_info __initdata board_96338GW = {
 	.name				= "96338GW",
 	.expected_cpu_id		= 0x6338,
 
@@ -83,7 +83,7 @@ static struct board_info __initdata board_96338gw = {
 	},
 };
 
-static struct board_info __initdata board_96338w = {
+static struct board_info __initdata board_96338W = {
 	.name				= "96338W",
 	.expected_cpu_id		= 0x6338,
 
@@ -128,7 +128,7 @@ static struct board_info __initdata board_96338w = {
  * known 6345 boards
  */
 #ifdef CONFIG_BCM63XX_CPU_6345
-static struct board_info __initdata board_96345gw2 = {
+static struct board_info __initdata board_96345GW2 = {
 	.name				= "96345GW2",
 	.expected_cpu_id		= 0x6345,
 };
@@ -138,109 +138,7 @@ static struct board_info __initdata board_96345gw2 = {
  * known 6348 boards
  */
 #ifdef CONFIG_BCM63XX_CPU_6348
-static struct board_info __initdata board_96348r = {
-	.name				= "96348R",
-	.expected_cpu_id		= 0x6348,
-
-	.has_enet0			= 1,
-	.has_pci			= 1,
-
-	.enet0 = {
-		.has_phy		= 1,
-		.use_internal_phy	= 1,
-	},
-
-	.leds = {
-		{
-			.name		= "adsl-fail",
-			.gpio		= 2,
-			.active_low	= 1,
-		},
-		{
-			.name		= "ppp",
-			.gpio		= 3,
-			.active_low	= 1,
-		},
-		{
-			.name		= "ppp-fail",
-			.gpio		= 4,
-			.active_low	= 1,
-		},
-		{
-			.name		= "power",
-			.gpio		= 0,
-			.active_low	= 1,
-			.default_trigger = "default-on",
-
-		},
-		{
-			.name		= "stop",
-			.gpio		= 1,
-			.active_low	= 1,
-		},
-	},
-};
-
-static struct board_info __initdata board_96348gw_10 = {
-	.name				= "96348GW-10",
-	.expected_cpu_id		= 0x6348,
-
-	.has_enet0			= 1,
-	.has_enet1			= 1,
-	.has_pci			= 1,
-
-	.enet0 = {
-		.has_phy		= 1,
-		.use_internal_phy	= 1,
-	},
-	.enet1 = {
-		.force_speed_100	= 1,
-		.force_duplex_full	= 1,
-	},
-
-	.has_ohci0			= 1,
-	.has_pccard			= 1,
-	.has_ehci0			= 1,
-
-	.has_dsp			= 1,
-	.dsp = {
-		.gpio_rst		= 6,
-		.gpio_int		= 34,
-		.cs			= 2,
-		.ext_irq		= 2,
-	},
-
-	.leds = {
-		{
-			.name		= "adsl-fail",
-			.gpio		= 2,
-			.active_low	= 1,
-		},
-		{
-			.name		= "ppp",
-			.gpio		= 3,
-			.active_low	= 1,
-		},
-		{
-			.name		= "ppp-fail",
-			.gpio		= 4,
-			.active_low	= 1,
-		},
-		{
-			.name		= "power",
-			.gpio		= 0,
-			.active_low	= 1,
-			.default_trigger = "default-on",
-		},
-		{
-			.name		= "stop",
-			.gpio		= 1,
-			.active_low	= 1,
-		},
-	},
-};
-
-static struct board_info __initdata board_96348gw_11 = {
+static struct board_info __initdata board_96348GW_11 = {
 	.name				= "96348GW-11",
 	.expected_cpu_id		= 0x6348,
 
@@ -302,272 +200,13 @@ static struct board_info __initdata board_96348gw_11 = {
 		},
 	},
 };
-
-static struct board_info __initdata board_96348gw = {
-	.name				= "96348GW",
-	.expected_cpu_id		= 0x6348,
-
-	.has_enet0			= 1,
-	.has_enet1			= 1,
-	.has_pci			= 1,
-
-	.enet0 = {
-		.has_phy		= 1,
-		.use_internal_phy	= 1,
-	},
-	.enet1 = {
-		.force_speed_100	= 1,
-		.force_duplex_full	= 1,
-	},
-
-	.has_ohci0 = 1,
-
-	.has_dsp			= 1,
-	.dsp = {
-		.gpio_rst		= 6,
-		.gpio_int		= 34,
-		.ext_irq		= 2,
-		.cs			= 2,
-	},
-
-	.leds = {
-		{
-			.name		= "adsl-fail",
-			.gpio		= 2,
-			.active_low	= 1,
-		},
-		{
-			.name		= "power",
-			.gpio		= 0,
-			.active_low	= 1,
-			.default_trigger = "default-on",
-		},
-		{
-			.name		= "stop",
-			.gpio		= 1,
-			.active_low	= 1,
-		},
-		{
-			.name		= "line1",
-			.gpio		= 4,
-			.active_low	= 1,
-		},
-		{
-			.name		= "line2",
-			.gpio		= 5,
-			.active_low	= 1,
-		},
-		{
-			.name		= "line3",
-			.gpio		= 6,
-			.active_low	= 1,
-		},
-		{
-			.name		= "tel",
-			.gpio		= 7,
-			.active_low	= 1,
-		},
-		{
-			.name		= "eth",
-			.gpio		= 35,
-			.active_low	= 1,
-		},
-	},
-	.reset_buttons = {
-		{
-			.desc		= "reset",
-			.gpio		= 36,
-			.active_low	= 1,
-			.type		= EV_KEY,
-			.code		= BTN_0,
-			.threshold	= 3,
-		},
-	},
-};
-
-static struct board_info __initdata board_FAST2404 = {
-        .name                           = "F@ST2404",
-        .expected_cpu_id                = 0x6348,
-
-        .has_enet0                      = 1,
-        .has_enet1                      = 1,
-        .has_pci                        = 1,
-
-        .enet0 = {
-                .has_phy                = 1,
-                .use_internal_phy       = 1,
-        },
-
-        .enet1 = {
-                .force_speed_100        = 1,
-                .force_duplex_full      = 1,
-        },
-
-
-        .has_ohci0 = 1,
-        .has_pccard = 1,
-        .has_ehci0 = 1,
-	.has_udc0			= 1,
-};
-
-static struct board_info __initdata board_rta1025w_16 = {
-	.name				= "RTA1025W_16",
-	.expected_cpu_id		= 0x6348,
-
-	.has_enet0			= 1,
-	.has_enet1			= 1,
-	.has_pci			= 1,
-
-	.enet0 = {
-		.has_phy		= 1,
-		.use_internal_phy	= 1,
-	},
-	.enet1 = {
-		.force_speed_100	= 1,
-		.force_duplex_full	= 1,
-	},
-};
-
-
-static struct board_info __initdata board_DV201AMR = {
-	.name				= "DV201AMR",
-	.expected_cpu_id		= 0x6348,
-
-	.has_pci			= 1,
-	.has_ohci0			= 1,
-
-	.has_enet0			= 1,
-	.has_enet1			= 1,
-	.enet0 = {
-		.has_phy		= 1,
-		.use_internal_phy	= 1,
-	},
-	.enet1 = {
-		.force_speed_100	= 1,
-		.force_duplex_full	= 1,
-	},
-};
-
-static struct board_info __initdata board_96348gw_a = {
-	.name				= "96348GW-A",
-	.expected_cpu_id		= 0x6348,
-
-	.has_enet0			= 1,
-	.has_enet1			= 1,
-	.has_pci			= 1,
-
-	.enet0 = {
-		.has_phy		= 1,
-		.use_internal_phy	= 1,
-	},
-	.enet1 = {
-		.force_speed_100	= 1,
-		.force_duplex_full	= 1,
-	},
-
-	.has_ohci0 = 1,
-};
-
-static struct board_info __initdata board_96348_D4PW = {
-	.name				= "D-4P-W",
-	.expected_cpu_id		= 0x6348,
-
-	.has_enet0			= 1,
-	.has_enet1			= 1,
-	.has_pci			= 1,
-
-	.enet0 = {
-		.has_phy		= 1,
-		.use_internal_phy	= 1,
-	},
-	.enet1 = {
-		.force_speed_100	= 1,
-		.force_duplex_full	= 1,
-	},
-
-	.has_ohci0			= 1,
-	.has_ehci0			= 1,
-
-	.leds = {
-		{
-			.name		= "ppp",
-			.gpio		= 4,
-			.active_low	= 1,
-		},
-		{
-			.name		= "ppp-fail",
-			.gpio		= 5,
-			.active_low	= 1,
-		},
-		{
-			.name		= "power",
-			.gpio		= 0,
-			.active_low	= 1,
-			.default_trigger = "default-on",
-
-		},
-	},
-
-};
-
 #endif
 
 /*
  * known 6358 boards
  */
 #ifdef CONFIG_BCM63XX_CPU_6358
-static struct board_info __initdata board_96358vw = {
-	.name				= "96358VW",
-	.expected_cpu_id		= 0x6358,
-
-	.has_enet0			= 1,
-	.has_enet1			= 1,
-	.has_pci			= 1,
-
-	.enet0 = {
-		.has_phy		= 1,
-		.use_internal_phy	= 1,
-	},
-
-	.enet1 = {
-		.force_speed_100	= 1,
-		.force_duplex_full	= 1,
-	},
-
-
-	.has_ohci0 = 1,
-	.has_pccard = 1,
-	.has_ehci0 = 1,
-
-	.leds = {
-		{
-			.name		= "adsl-fail",
-			.gpio		= 15,
-			.active_low	= 1,
-		},
-		{
-			.name		= "ppp",
-			.gpio		= 22,
-			.active_low	= 1,
-		},
-		{
-			.name		= "ppp-fail",
-			.gpio		= 23,
-			.active_low	= 1,
-		},
-		{
-			.name		= "power",
-			.gpio		= 4,
-			.default_trigger = "default-on",
-		},
-		{
-			.name		= "stop",
-			.gpio		= 5,
-		},
-	},
-};
-
-static struct board_info __initdata board_96358vw2 = {
+static struct board_info __initdata board_96358VW2 = {
 	.name				= "96358VW2",
 	.expected_cpu_id		= 0x6358,
 
@@ -613,106 +252,6 @@ static struct board_info __initdata board_96358vw2 = {
 		},
 	},
 };
-
-static struct board_info __initdata board_AGPFS0 = {
-	.name                           = "AGPF-S0",
-	.expected_cpu_id                = 0x6358,
-
-	.has_enet0                      = 1,
-	.has_enet1                      = 1,
-	.has_pci                        = 1,
-
-	.enet0 = {
-		.has_phy                = 1,
-		.use_internal_phy       = 1,
-	},
-
-	.enet1 = {
-		.force_speed_100        = 1,
-		.force_duplex_full      = 1,
-	},
-
-	.has_ohci0 = 1,
-	.has_ehci0 = 1,
-
-	.leds = {
-		/*Each led on alice gate is bi-color */
-		{
-			.name		= "power:red",
-			.gpio		= 5,
-			.active_low	= 1,
-		},
-		{
-			.name		= "power:green",
-			.gpio		= 4,
-			.active_low	= 1,
-			.default_trigger = "default-on",
-		},
-		{
-			.name		= "wifi:red",
-			.gpio		= 23,
-			.active_low	= 1,
-		},
-		{
-			.name		= "wifi:green",
-			.gpio		= 22,
-			.active_low	= 1,
-		},
-		{
-			.name		= "usr1:red",
-			.gpio		= 27,
-			.active_low	= 1,
-		},
-		{
-			.name		= "usr1:green",
-			.gpio		= 26,
-			.active_low	= 1,
-		},
-		{
-			.name		= "usr2:red",
-			.gpio		= 30,
-			.active_low	= 1,
-		},
-		{
-			.name		= "usr2:green",
-			.gpio		= 29,
-			.active_low	= 1,
-		},
-	},
-
-	.reset_buttons = {
-		{
-			.desc           = "sw2",
-			.gpio           = 37,
-			.active_low     = 1,
-			.type           = EV_KEY,
-			.code           = BTN_0,
-			.threshold      = 3,
-		},
-	},
-	/* sw1 is connected to gpio34*/
-};
-
-static struct board_info __initdata board_DWVS0 = {
-	.name				= "DWV-S0",
-	.expected_cpu_id		= 0x6358,
-
-	.has_enet0			= 1,
-	.has_enet1			= 1,
-	.has_pci			= 1,
-
-	.enet0 = {
-		.has_phy		= 1,
-		.use_internal_phy	= 1,
-	},
-
-	.enet1 = {
-		.force_speed_100	= 1,
-		.force_duplex_full	= 1,
-	},
-
-	.has_ohci0 = 1,
-};
 #endif
 
 /*
@@ -720,29 +259,17 @@ static struct board_info __initdata board_DWVS0 = {
  */
 static const struct board_info __initdata *bcm963xx_boards[] = {
 #ifdef CONFIG_BCM63XX_CPU_6338
-	&board_96338gw,
-	&board_96338w,
+	&board_96338GW,
+	&board_96338W,
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6345
-	&board_96345gw2,
+	&board_96345GW2,
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6348
-	&board_96348r,
-	&board_96348gw,
-	&board_96348gw_10,
-	&board_96348gw_11,
-	&board_FAST2404,
-	&board_DV201AMR,
-	&board_96348gw_a,
-	&board_rta1025w_16,
-	&board_96348_D4PW,
+	&board_96348GW_11,
 #endif
-
 #ifdef CONFIG_BCM63XX_CPU_6358
-	&board_96358vw,
-	&board_96358vw2,
-	&board_AGPFS0,
-	&board_DWVS0,
+	&board_96358VW2,
 #endif
 };
 
@@ -1041,4 +568,3 @@ int __init board_register_devices(void)
 
 	return 0;
 }
-
