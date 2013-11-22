@@ -8,10 +8,4 @@ config BOARD_BCM963XX
 	select SSB
        help
 
-config BOARD_LIVEBOX
-	bool "Inventel Livebox(es) boards"
-	select SSB
-	help
-	 Inventel Livebox boards using the RedBoot bootloader.
-
 endchoice
