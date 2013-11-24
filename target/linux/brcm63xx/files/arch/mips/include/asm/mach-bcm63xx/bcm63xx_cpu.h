@@ -108,6 +108,7 @@ enum bcm63xx_regs_set {
 #define RSET_WDT_SIZE			12
 #define RSET_ENET_SIZE			2048
 #define RSET_ENETDMA_SIZE		2048
+#define RSET_SPI_SIZE			256
 #define RSET_UART_SIZE			24
 #define RSET_UDC_SIZE			256
 #define RSET_OHCI_SIZE			256
@@ -209,7 +210,7 @@ enum bcm63xx_regs_set {
 #define BCM_6358_WDT_BASE		(0xfffe005c)
 #define BCM_6358_UART0_BASE		(0xfffe0100)
 #define BCM_6358_GPIO_BASE		(0xfffe0080)
-#define BCM_6358_SPI_BASE		(0xdeadbeef)
+#define BCM_6358_SPI_BASE		(0xfffe0800)
 #define BCM_6358_UDC0_BASE		(0xfffe0400)
 #define BCM_6358_OHCI0_BASE		(0xfffe1400)
 #define BCM_6358_OHCI_PRIV_BASE		(0xdeadbeef)
@@ -428,6 +429,7 @@ static inline unsigned long bcm63xx_regset_address(enum bcm63xx_regs_set set)
  */
 enum bcm63xx_irq {
 	IRQ_TIMER = 0,
+	IRQ_SPI,
 	IRQ_UART0,
 	IRQ_DSL,
 	IRQ_UDC0,
@@ -493,6 +495,7 @@ enum bcm63xx_irq {
  * 6348 irqs
  */
 #define BCM_6348_TIMER_IRQ		(IRQ_INTERNAL_BASE + 0)
+#define BCM_6348_SPI_IRQ		(IRQ_INTERNAL_BASE + 1)
 #define BCM_6348_UART0_IRQ		(IRQ_INTERNAL_BASE + 2)
 #define BCM_6348_DSL_IRQ		(IRQ_INTERNAL_BASE + 4)
 #define BCM_6348_UDC0_IRQ		(IRQ_INTERNAL_BASE + 6)
@@ -517,6 +520,7 @@ enum bcm63xx_irq {
  * 6358 irqs
  */
 #define BCM_6358_TIMER_IRQ		(IRQ_INTERNAL_BASE + 0)
+#define BCM_6358_SPI_IRQ		(IRQ_INTERNAL_BASE + 1)
 #define BCM_6358_UART0_IRQ		(IRQ_INTERNAL_BASE + 2)
 #define BCM_6358_OHCI0_IRQ		(IRQ_INTERNAL_BASE + 5)
 #define BCM_6358_ENET1_IRQ		(IRQ_INTERNAL_BASE + 6)

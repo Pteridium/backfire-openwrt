@@ -55,6 +55,7 @@ static const unsigned long bcm96338_regs_base[] = {
 
 static const int bcm96338_irqs[] = {
 	[IRQ_TIMER]		= BCM_6338_TIMER_IRQ,
+	[IRQ_SPI]		= BCM_6338_SPI_IRQ,
 	[IRQ_UART0]		= BCM_6338_UART0_IRQ,
 	[IRQ_DSL]		= BCM_6338_DSL_IRQ,
 	[IRQ_ENET0]		= BCM_6338_ENET0_IRQ,
@@ -127,6 +128,7 @@ static const unsigned long bcm96348_regs_base[] = {
 
 static const int bcm96348_irqs[] = {
 	[IRQ_TIMER]		= BCM_6348_TIMER_IRQ,
+	[IRQ_SPI]		= BCM_6348_SPI_IRQ,
 	[IRQ_UART0]		= BCM_6348_UART0_IRQ,
 	[IRQ_DSL]		= BCM_6348_DSL_IRQ,
 	[IRQ_ENET0]		= BCM_6348_ENET0_IRQ,
@@ -169,6 +171,7 @@ static const unsigned long bcm96358_regs_base[] = {
 
 static const int bcm96358_irqs[] = {
 	[IRQ_TIMER]		= BCM_6358_TIMER_IRQ,
+	[IRQ_SPI]		= BCM_6358_SPI_IRQ,
 	[IRQ_UART0]		= BCM_6358_UART0_IRQ,
 	[IRQ_DSL]		= BCM_6358_DSL_IRQ,
 	[IRQ_ENET0]		= BCM_6358_ENET0_IRQ,

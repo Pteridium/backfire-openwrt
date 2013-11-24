@@ -29,6 +29,7 @@
 #include <bcm63xx_dev_usb_ohci.h>
 #include <bcm63xx_dev_usb_ehci.h>
 #include <bcm63xx_dev_usb_udc.h>
+#include <bcm63xx_dev_spi.h>
 #include <board_bcm963xx.h>
 
 #define PFX	"board_bcm963xx: "
@@ -543,6 +544,9 @@ int __init board_register_devices(void)
 
 	if (board.has_udc0)
 		bcm63xx_udc_register();
+
+	if (!BCMCPU_IS_6345())
+		bcm63xx_spi_register();
 
 	/* Generate MAC address for WLAN and
 	 * register our SPROM */
