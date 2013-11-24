@@ -193,7 +193,7 @@ static struct board_info __initdata board_96348GW_11 = {
 	.buttons = {
 		{
 			.desc		= "reset",
-			.gpio		= 32,
+			.gpio		= 33,
 			.active_low	= 1,
 			.type		= EV_KEY,
 			.code		= KEY_RESTART,
