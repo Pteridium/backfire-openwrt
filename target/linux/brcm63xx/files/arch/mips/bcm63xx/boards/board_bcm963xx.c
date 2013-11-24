@@ -252,6 +252,24 @@ static struct board_info __initdata board_96358VW2 = {
 		},
 	},
 };
+
+static struct board_info __initdata board_HW6358GW_B = {
+	.name                           = "HW6358GW_B",
+	.expected_cpu_id                = 0x6358,
+
+	.has_pci                        = 1,
+
+	.has_ohci0 = 1,
+	.has_ehci0 = 1,
+
+	.leds = {
+		{
+			.name		= "HG520v:green:net",
+			.gpio		= 32,
+			.active_low	= 1,
+		},
+	},
+};
 #endif
 
 /*
@@ -270,6 +288,7 @@ static const struct board_info __initdata *bcm963xx_boards[] = {
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6358
 	&board_96358VW2,
+	&board_HW6358GW_B,
 #endif
 };
 

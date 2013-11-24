@@ -148,6 +148,11 @@ define Image/Build/Profile/DSL2650U
 	$(call Image/Build/CFE,$(1),96358VW2,6358,DSL-2650U)
 endef
 
+# Huawei HG520v
+define Image/Build/Profile/HG520V
+	$(call Image/Build/CFE,$(1),HW6358GW_B,6358,HG520v)
+endef
+
 endif
 
 define Image/Build
