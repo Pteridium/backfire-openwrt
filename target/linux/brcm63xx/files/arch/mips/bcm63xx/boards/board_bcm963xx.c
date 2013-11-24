@@ -562,6 +562,9 @@ int __init board_register_devices(void)
 	if (!BCMCPU_IS_6345())
 		bcm63xx_spi_register();
 
+	if (board.num_devs)
+		platform_add_devices(board.devs, board.num_devs);
+
 	/* read base address of boot chip select (0) */
 	if (BCMCPU_IS_6345())
 		val = 0x1fc00000;

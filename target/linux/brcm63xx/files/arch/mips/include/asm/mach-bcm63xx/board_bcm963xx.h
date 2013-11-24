@@ -59,6 +59,10 @@ struct board_info {
 
 	/* Reset button */
 	struct gpio_button buttons[4];
+
+	/* Additional platform devices */
+	struct platform_device **devs;
+	unsigned int    num_devs;
 };
 
 #endif /* ! BOARD_BCM963XX_H_ */
