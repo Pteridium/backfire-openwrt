@@ -388,6 +388,8 @@ void __init board_prom_init(void)
 		if (BCMCPU_IS_6348())
 			val |= GPIO_MODE_6348_G3_EXT_MII |
 				GPIO_MODE_6348_G0_EXT_MII;
+		else if (BCMCPU_IS_6358())
+			val |= GPIO_MODE_6358_ENET1_MII_CLK_INV;
 	}
 
 	bcm_gpio_writel(val, GPIO_MODE_REG);
