@@ -190,13 +190,13 @@ static struct board_info __initdata board_96348GW_11 = {
 			.active_low	= 1,
 		},
 	},
-	.reset_buttons = {
+	.buttons = {
 		{
 			.desc		= "reset",
 			.gpio		= 32,
 			.active_low	= 1,
 			.type		= EV_KEY,
-			.code		= BTN_0,
+			.code		= KEY_RESTART,
 			.threshold	= 3,
 		},
 	},
@@ -523,6 +523,7 @@ int __init board_register_devices(void)
 {
 	u32 val;
 	int led_count = 0;
+	int button_count = 0;
 
 	if (board.has_pccard)
 		bcm63xx_pcmcia_register();
@@ -584,9 +585,13 @@ int __init board_register_devices(void)
 
 	platform_device_register(&bcm63xx_gpio_leds);
 
-	if (board.reset_buttons) {
-		bcm63xx_gpio_buttons_data.nbuttons = ARRAY_SIZE(board.reset_buttons);
-		bcm63xx_gpio_buttons_data.buttons = board.reset_buttons;
+	/* count number of BUTTONs defined by this device */
+	while (button_count < ARRAY_SIZE(board.buttons) && board.buttons[button_count].desc)
+		button_count++;
+
+	if (button_count) {
+		bcm63xx_gpio_buttons_data.nbuttons = button_count;
+		bcm63xx_gpio_buttons_data.buttons = board.buttons;
 
 		platform_device_register(&bcm63xx_gpio_buttons_device);
 	}
