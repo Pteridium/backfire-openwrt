@@ -305,6 +305,64 @@ static const struct board_info __initdata *bcm963xx_boards[] = {
 };
 
 /*
+ * Register a sane SPROMv2 to make the on-board
+ * bcm4318 WLAN work
+ */
+#ifdef CONFIG_SSB_PCIHOST
+static struct ssb_sprom bcm63xx_sprom = {
+	.revision		= 0x02,
+	.board_rev		= 0x17,
+	.country_code		= 0x0,
+	.ant_available_bg 	= 0x3,
+	.pa0b0			= 0x15ae,
+	.pa0b1			= 0xfa85,
+	.pa0b2			= 0xfe8d,
+	.pa1b0			= 0xffff,
+	.pa1b1			= 0xffff,
+	.pa1b2			= 0xffff,
+	.gpio0			= 0xff,
+	.gpio1			= 0xff,
+	.gpio2			= 0xff,
+	.gpio3			= 0xff,
+	.maxpwr_bg		= 0x004c,
+	.itssi_bg		= 0x00,
+	.boardflags_lo		= 0x2848,
+	.boardflags_hi		= 0x0000,
+};
+#endif
+
+/*
+ * return board name for /proc/cpuinfo
+ */
+const char *board_get_name(void)
+{
+	return board.name;
+}
+
+static void __init boardid_fixup(u8 *boot_addr)
+{
+	struct bcm_tag *tag = (struct bcm_tag *)(boot_addr + CFE_OFFSET_64K);
+
+	/* check if bcm_tag is at 64k offset */
+	if (strncmp(nvram.name, tag->boardid, BOARDID_LEN) != 0) {
+		/* else try 128k */
+		tag = (struct bcm_tag *)(boot_addr + CFE_OFFSET_128K);
+		if (strncmp(nvram.name, tag->boardid, BOARDID_LEN) != 0) {
+			/* No tag found */
+			printk(KERN_DEBUG "No bcm_tag found!\n");
+			return;
+		}
+	}
+	/* check if we should override the boardid */
+	if (tag->information1[0] != '+')
+		return;
+
+	strncpy(nvram.name, &tag->information1[1], BOARDID_LEN);
+
+	printk(KERN_INFO "Overriding boardid with '%s'\n", nvram.name);
+}
+
+/*
  * early init callback, read nvram data from flash and checksum it
  */
 void __init board_prom_init(void)
@@ -427,14 +485,6 @@ void __init board_setup(void)
 }
 
 /*
- * return board name for /proc/cpuinfo
- */
-const char *board_get_name(void)
-{
-	return board.name;
-}
-
-/*
  * register & return a new board mac address
  */
 static int board_get_mac_address(u8 *mac)
@@ -483,33 +533,6 @@ static struct platform_device mtd_dev = {
 	.num_resources		= ARRAY_SIZE(mtd_resources),
 };
 
-/*
- * Register a sane SPROMv2 to make the on-board
- * bcm4318 WLAN work
- */
-#ifdef CONFIG_SSB_PCIHOST
-static struct ssb_sprom bcm63xx_sprom = {
-	.revision		= 0x02,
-	.board_rev		= 0x17,
-	.country_code		= 0x0,
-	.ant_available_bg 	= 0x3,
-	.pa0b0			= 0x15ae,
-	.pa0b1			= 0xfa85,
-	.pa0b2			= 0xfe8d,
-	.pa1b0			= 0xffff,
-	.pa1b1			= 0xffff,
-	.pa1b2			= 0xffff,
-	.gpio0			= 0xff,
-	.gpio1			= 0xff,
-	.gpio2			= 0xff,
-	.gpio3			= 0xff,
-	.maxpwr_bg		= 0x004c,
-	.itssi_bg		= 0x00,
-	.boardflags_lo		= 0x2848,
-	.boardflags_hi		= 0x0000,
-};
-#endif
-
 static struct resource gpiodev_resource = {
 	.start			= 0xFFFFFFFF,
 };
@@ -531,29 +554,6 @@ static struct platform_device bcm63xx_gpio_buttons_device = {
 	.id		= 0,
 	.dev.platform_data = &bcm63xx_gpio_buttons_data,
 };
-
-static void __init boardid_fixup(u8 *boot_addr)
-{
-	struct bcm_tag *tag = (struct bcm_tag *)(boot_addr + CFE_OFFSET_64K);
-
-	/* check if bcm_tag is at 64k offset */
-	if (strncmp(nvram.name, tag->boardid, BOARDID_LEN) != 0) {
-		/* else try 128k */
-		tag = (struct bcm_tag *)(boot_addr + CFE_OFFSET_128K);
-		if (strncmp(nvram.name, tag->boardid, BOARDID_LEN) != 0) {
-			/* No tag found */
-			printk(KERN_DEBUG "No bcm_tag found!\n");
-			return;
-		}
-	}
-	/* check if we should override the boardid */
-	if (tag->information1[0] != '+')
-		return;
-
-	strncpy(nvram.name, &tag->information1[1], BOARDID_LEN);
-
-	printk(KERN_INFO "Overriding boardid with '%s'\n", nvram.name);
-}
 
 /*
  * third stage init callback, register all board devices.
