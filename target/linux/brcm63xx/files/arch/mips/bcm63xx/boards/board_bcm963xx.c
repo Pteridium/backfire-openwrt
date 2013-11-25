@@ -17,6 +17,7 @@
 #include <linux/ssb/ssb.h>
 #include <linux/gpio_buttons.h>
 #include <linux/input.h>
+#include <linux/spi/spi.h>
 #include <asm/addrspace.h>
 #include <bcm63xx_board.h>
 #include <bcm63xx_cpu.h>
