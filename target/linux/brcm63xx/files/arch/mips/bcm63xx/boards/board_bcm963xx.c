@@ -20,6 +20,7 @@
 #include <asm/addrspace.h>
 #include <bcm63xx_board.h>
 #include <bcm63xx_cpu.h>
+#include <bcm63xx_dev_uart.h>
 #include <bcm63xx_regs.h>
 #include <bcm63xx_io.h>
 #include <bcm63xx_dev_pci.h>
@@ -46,6 +47,7 @@ static struct board_info __initdata board_96338GW = {
 	.name				= "96338GW",
 	.expected_cpu_id		= 0x6338,
 
+	.has_uart0			= 1,
 	.has_enet0			= 1,
 	.enet0 = {
 		.force_speed_100	= 1,
@@ -88,6 +90,7 @@ static struct board_info __initdata board_96338W = {
 	.name				= "96338W",
 	.expected_cpu_id		= 0x6338,
 
+	.has_uart0			= 1,
 	.has_enet0			= 1,
 	.enet0 = {
 		.force_speed_100	= 1,
@@ -132,6 +135,8 @@ static struct board_info __initdata board_96338W = {
 static struct board_info __initdata board_96345GW2 = {
 	.name				= "96345GW2",
 	.expected_cpu_id		= 0x6345,
+
+	.has_uart0			= 1,
 };
 #endif
 
@@ -143,6 +148,7 @@ static struct board_info __initdata board_96348GW_11 = {
 	.name				= "96348GW-11",
 	.expected_cpu_id		= 0x6348,
 
+	.has_uart0			= 1,
 	.has_enet0			= 1,
 	.has_enet1			= 1,
 	.has_pci			= 1,
@@ -156,7 +162,6 @@ static struct board_info __initdata board_96348GW_11 = {
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
-
 
 	.has_ohci0 = 1,
 	.has_pccard = 1,
@@ -211,6 +216,7 @@ static struct board_info __initdata board_96358VW2 = {
 	.name				= "96358VW2",
 	.expected_cpu_id		= 0x6358,
 
+	.has_uart0			= 1,
 	.has_enet0			= 1,
 	.has_enet1			= 1,
 	.has_pci			= 1,
@@ -224,7 +230,6 @@ static struct board_info __initdata board_96358VW2 = {
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
-
 
 	.has_ohci0 = 1,
 	.has_pccard = 1,
@@ -258,6 +263,7 @@ static struct board_info __initdata board_HW6358GW_B = {
 	.name                           = "HW6358GW_B",
 	.expected_cpu_id                = 0x6358,
 
+	.has_uart0			= 1,
 	.has_pci                        = 1,
 
 	.has_ohci0 = 1,
@@ -524,6 +530,12 @@ int __init board_register_devices(void)
 	u32 val;
 	int led_count = 0;
 	int button_count = 0;
+
+	if (board.has_uart0)
+		bcm63xx_uart_register(0);
+
+	if (board.has_uart1)
+		bcm63xx_uart_register(1);
 
 	if (board.has_pccard)
 		bcm63xx_pcmcia_register();

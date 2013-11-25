@@ -45,6 +45,8 @@ struct board_info {
 	unsigned int	has_ohci0:1;
 	unsigned int	has_ehci0:1;
 	unsigned int	has_dsp:1;
+	unsigned int	has_uart0:1;
+	unsigned int	has_uart1:1;
 	unsigned int	has_udc0:1;
 
 	/* ethernet config */
