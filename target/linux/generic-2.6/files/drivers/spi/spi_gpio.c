@@ -157,25 +157,63 @@ static inline void spidelay(unsigned nsecs)
 static u32 spi_gpio_txrx_word_mode0(struct spi_device *spi,
 		unsigned nsecs, u32 word, u8 bits)
 {
-	return bitbang_txrx_be_cpha0(spi, nsecs, 0, word, bits);
+	return bitbang_txrx_be_cpha0(spi, nsecs, 0, 0, word, bits);
 }
 
 static u32 spi_gpio_txrx_word_mode1(struct spi_device *spi,
 		unsigned nsecs, u32 word, u8 bits)
 {
-	return bitbang_txrx_be_cpha1(spi, nsecs, 0, word, bits);
+	return bitbang_txrx_be_cpha1(spi, nsecs, 0, 0, word, bits);
 }
 
 static u32 spi_gpio_txrx_word_mode2(struct spi_device *spi,
 		unsigned nsecs, u32 word, u8 bits)
 {
-	return bitbang_txrx_be_cpha0(spi, nsecs, 1, word, bits);
+	return bitbang_txrx_be_cpha0(spi, nsecs, 1, 0, word, bits);
 }
 
 static u32 spi_gpio_txrx_word_mode3(struct spi_device *spi,
 		unsigned nsecs, u32 word, u8 bits)
 {
-	return bitbang_txrx_be_cpha1(spi, nsecs, 1, word, bits);
+	return bitbang_txrx_be_cpha1(spi, nsecs, 1, 0, word, bits);
+}
+
+/*
+ * These functions do not call setmosi or getmiso if respective flag
+ * (SPI_MASTER_NO_RX or SPI_MASTER_NO_TX) is set, so they are safe to
+ * call when such pin is not present or defined in the controller.
+ * A separate set of callbacks is defined to get highest possible
+ * speed in the generic case (when both MISO and MOSI lines are
+ * available), as optimiser will remove the checks when argument is
+ * constant.
+ */
+
+static u32 spi_gpio_spec_txrx_word_mode0(struct spi_device *spi,
+		unsigned nsecs, u32 word, u8 bits)
+{
+	unsigned flags = spi->master->flags;
+	return bitbang_txrx_be_cpha0(spi, nsecs, 0, flags, word, bits);
+}
+
+static u32 spi_gpio_spec_txrx_word_mode1(struct spi_device *spi,
+		unsigned nsecs, u32 word, u8 bits)
+{
+	unsigned flags = spi->master->flags;
+	return bitbang_txrx_be_cpha1(spi, nsecs, 0, flags, word, bits);
+}
+
+static u32 spi_gpio_spec_txrx_word_mode2(struct spi_device *spi,
+		unsigned nsecs, u32 word, u8 bits)
+{
+	unsigned flags = spi->master->flags;
+	return bitbang_txrx_be_cpha0(spi, nsecs, 1, flags, word, bits);
+}
+
+static u32 spi_gpio_spec_txrx_word_mode3(struct spi_device *spi,
+		unsigned nsecs, u32 word, u8 bits)
+{
+	unsigned flags = spi->master->flags;
+	return bitbang_txrx_be_cpha1(spi, nsecs, 1, flags, word, bits);
 }
 
 /*----------------------------------------------------------------------*/
@@ -243,19 +281,30 @@ static int __devinit spi_gpio_alloc(unsigned pin, const char *label, bool is_in)
 }
 
 static int __devinit
-spi_gpio_request(struct spi_gpio_platform_data *pdata, const char *label)
+spi_gpio_request(struct spi_gpio_platform_data *pdata, const char *label,
+	u16 *res_flags)
 {
 	int value;
 
 	/* NOTE:  SPI_*_GPIO symbols may reference "pdata" */
 
-	value = spi_gpio_alloc(SPI_MOSI_GPIO, label, false);
-	if (value)
-		goto done;
+	if (SPI_MOSI_GPIO != SPI_GPIO_NO_MOSI) {
+		value = spi_gpio_alloc(SPI_MOSI_GPIO, label, false);
+		if (value)
+			goto done;
+	} else {
+		/* HW configuration without MOSI pin */
+		*res_flags |= SPI_MASTER_NO_TX;
+	}
 
-	value = spi_gpio_alloc(SPI_MISO_GPIO, label, true);
-	if (value)
-		goto free_mosi;
+	if (SPI_MISO_GPIO != SPI_GPIO_NO_MISO) {
+		value = spi_gpio_alloc(SPI_MISO_GPIO, label, true);
+		if (value)
+			goto free_mosi;
+	} else {
+		/* HW configuration without MISO pin */
+		*res_flags |= SPI_MASTER_NO_RX;
+	}
 
 	value = spi_gpio_alloc(SPI_SCK_GPIO, label, false);
 	if (value)
@@ -264,9 +313,11 @@ spi_gpio_request(struct spi_gpio_platform_data *pdata, const char *label)
 	goto done;
 
 free_miso:
-	gpio_free(SPI_MISO_GPIO);
+	if (SPI_MISO_GPIO != SPI_GPIO_NO_MISO)
+		gpio_free(SPI_MISO_GPIO);
 free_mosi:
-	gpio_free(SPI_MOSI_GPIO);
+	if (SPI_MOSI_GPIO != SPI_GPIO_NO_MOSI)
+		gpio_free(SPI_MOSI_GPIO);
 done:
 	return value;
 }
@@ -277,6 +328,7 @@ static int __devinit spi_gpio_probe(struct platform_device *pdev)
 	struct spi_master		*master;
 	struct spi_gpio			*spi_gpio;
 	struct spi_gpio_platform_data	*pdata;
+	u16 master_flags = 0;
 
 	pdata = pdev->dev.platform_data;
 #ifdef GENERIC_BITBANG
@@ -284,7 +336,7 @@ static int __devinit spi_gpio_probe(struct platform_device *pdev)
 		return -ENODEV;
 #endif
 
-	status = spi_gpio_request(pdata, dev_name(&pdev->dev));
+	status = spi_gpio_request(pdata, dev_name(&pdev->dev), &master_flags);
 	if (status < 0)
 		return status;
 
@@ -300,6 +352,7 @@ static int __devinit spi_gpio_probe(struct platform_device *pdev)
 	if (pdata)
 		spi_gpio->pdata = *pdata;
 
+	master->flags = master_flags;
 	master->bus_num = pdev->id;
 	master->num_chipselect = SPI_N_CHIPSEL;
 	master->setup = spi_gpio_setup;
@@ -307,10 +360,18 @@ static int __devinit spi_gpio_probe(struct platform_device *pdev)
 
 	spi_gpio->bitbang.master = spi_master_get(master);
 	spi_gpio->bitbang.chipselect = spi_gpio_chipselect;
-	spi_gpio->bitbang.txrx_word[SPI_MODE_0] = spi_gpio_txrx_word_mode0;
-	spi_gpio->bitbang.txrx_word[SPI_MODE_1] = spi_gpio_txrx_word_mode1;
-	spi_gpio->bitbang.txrx_word[SPI_MODE_2] = spi_gpio_txrx_word_mode2;
-	spi_gpio->bitbang.txrx_word[SPI_MODE_3] = spi_gpio_txrx_word_mode3;
+
+	if ((master_flags & (SPI_MASTER_NO_RX | SPI_MASTER_NO_RX)) == 0) {
+		spi_gpio->bitbang.txrx_word[SPI_MODE_0] = spi_gpio_txrx_word_mode0;
+		spi_gpio->bitbang.txrx_word[SPI_MODE_1] = spi_gpio_txrx_word_mode1;
+		spi_gpio->bitbang.txrx_word[SPI_MODE_2] = spi_gpio_txrx_word_mode2;
+		spi_gpio->bitbang.txrx_word[SPI_MODE_3] = spi_gpio_txrx_word_mode3;
+	} else {
+		spi_gpio->bitbang.txrx_word[SPI_MODE_0] = spi_gpio_spec_txrx_word_mode0;
+		spi_gpio->bitbang.txrx_word[SPI_MODE_1] = spi_gpio_spec_txrx_word_mode1;
+		spi_gpio->bitbang.txrx_word[SPI_MODE_2] = spi_gpio_spec_txrx_word_mode2;
+		spi_gpio->bitbang.txrx_word[SPI_MODE_3] = spi_gpio_spec_txrx_word_mode3;
+	}
 	spi_gpio->bitbang.setup_transfer = spi_bitbang_setup_transfer;
 	spi_gpio->bitbang.flags = SPI_CS_HIGH;
 
@@ -318,8 +379,10 @@ static int __devinit spi_gpio_probe(struct platform_device *pdev)
 	if (status < 0) {
 		spi_master_put(spi_gpio->bitbang.master);
 gpio_free:
-		gpio_free(SPI_MISO_GPIO);
-		gpio_free(SPI_MOSI_GPIO);
+		if (SPI_MISO_GPIO != SPI_GPIO_NO_MISO)
+			gpio_free(SPI_MISO_GPIO);
+		if (SPI_MOSI_GPIO != SPI_GPIO_NO_MOSI)
+			gpio_free(SPI_MOSI_GPIO);
 		gpio_free(SPI_SCK_GPIO);
 		spi_master_put(master);
 	}
@@ -342,8 +405,10 @@ static int __devexit spi_gpio_remove(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, NULL);
 
-	gpio_free(SPI_MISO_GPIO);
-	gpio_free(SPI_MOSI_GPIO);
+	if (SPI_MISO_GPIO != SPI_GPIO_NO_MISO)
+		gpio_free(SPI_MISO_GPIO);
+	if (SPI_MOSI_GPIO != SPI_GPIO_NO_MOSI)
+		gpio_free(SPI_MOSI_GPIO);
 	gpio_free(SPI_SCK_GPIO);
 
 	return status;
