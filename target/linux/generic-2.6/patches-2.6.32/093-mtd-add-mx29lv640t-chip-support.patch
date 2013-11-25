@@ -12,7 +12,7 @@
  			ERASEINFO(0x04000,1)
  		}
  	}, {
-+		.mfr_id		= CFI_MFR_MACRONIX,
++		.mfr_id		= MANUFACTURER_MACRONIX,
 +		.dev_id		= MX29LV640T,
 +		.name		= "Macronix MX29LV640T",
 +		.devtypes	= CFI_DEVICETYPE_X16|CFI_DEVICETYPE_X8,
