@@ -123,14 +123,4 @@ switch (reg) {
 	return 0;
 }
 
-/*
- * helpers for the SPI register sets
- */
-#define bcm_spi_readb(o)    bcm_rset_readb(RSET_SPI, bcm63xx_spireg(o))
-#define bcm_spi_readw(o)    bcm_rset_readw(RSET_SPI, bcm63xx_spireg(o))
-#define bcm_spi_readl(o)    bcm_rset_readl(RSET_SPI, bcm63xx_spireg(o))
-#define bcm_spi_writeb(v,o) bcm_rset_writeb(RSET_SPI, (v), bcm63xx_spireg(o))
-#define bcm_spi_writew(v,o) bcm_rset_writew(RSET_SPI, (v), bcm63xx_spireg(o))
-#define bcm_spi_writel(v,o) bcm_rset_writel(RSET_SPI, (v), bcm63xx_spireg(o))
-
 #endif /* BCM63XX_DEV_SPI_H */

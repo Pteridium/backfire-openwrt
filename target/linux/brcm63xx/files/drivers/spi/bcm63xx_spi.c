@@ -2,6 +2,7 @@
  * Broadcom BCM63xx SPI controller support
  *
  * Copyright (C) 2009 Florian Fainelli <florian@openwrt.org>
+ * Copyright (C) 2010 Tanguy Bouzeloc <tanguy.bouzeloc@efixo.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,11 +37,11 @@
 
 struct bcm63xx_spi {
 	spinlock_t              lock;
-	int                     stopping;
+	int			stopping;
         struct completion	done;
 
-        void __iomem		*regs;
-        int			irq;
+	void __iomem		*regs;
+	int			irq;
 
 	/* Platform data */
         u32			speed_hz;
@@ -49,14 +50,43 @@ struct bcm63xx_spi {
 	/* Data buffers */
 	const unsigned char	*tx_ptr;
 	unsigned char		*rx_ptr;
+
+	/* data iomem */
+	u8 __iomem		*tx_io;
+	const u8 __iomem	*rx_io;
+
 	int			remaining_bytes;
 
 	struct clk		*clk;
 	struct platform_device	*pdev;
 };
 
+static inline u8 bcm_spi_readb(struct bcm63xx_spi *bs,
+				unsigned int offset)
+{
+	return bcm_readw(bs->regs + bcm63xx_spireg(offset));
+}
+
+static inline u16 bcm_spi_readw(struct bcm63xx_spi *bs,
+				unsigned int offset)
+{
+	return bcm_readw(bs->regs + bcm63xx_spireg(offset));
+}
+
+static inline void bcm_spi_writeb(struct bcm63xx_spi *bs,
+				  u8 value, unsigned int offset)
+{
+	bcm_writeb(value, bs->regs + bcm63xx_spireg(offset));
+}
+
+static inline void bcm_spi_writew(struct bcm63xx_spi *bs,
+				  u16 value, unsigned int offset)
+{
+	bcm_writew(value, bs->regs + bcm63xx_spireg(offset));
+}
+
 static int bcm63xx_spi_setup_transfer(struct spi_device *spi,
-					struct spi_transfer *t)
+				      struct spi_transfer *t)
 {
 	u8 bits_per_word;
 	u8 clk_cfg;
@@ -97,17 +127,17 @@ static int bcm63xx_spi_setup_transfer(struct spi_device *spi,
 	case 32:
 		clk_cfg = SPI_CLK_1_563MHZ;
 		break;
-	case 128:
+	case 64:
 		clk_cfg = SPI_CLK_0_781MHZ;
 		break;
-	case 64:
+	case 128:
 	default:
 		/* Set to slowest mode for compatibility */
-		clk_cfg = SPI_CLK_0_781MHZ;
+		clk_cfg = SPI_CLK_0_391MHZ;
 		break;
 	}
 
-	bcm_spi_writeb(clk_cfg, SPI_CLK_CFG);
+	bcm_spi_writeb(bs, clk_cfg, SPI_CLK_CFG);
 	dev_dbg(&spi->dev, "Setting clock register to %d (hz %d, cmd %02x)\n",
 		div, hz, clk_cfg);
 
@@ -120,7 +150,7 @@ static int bcm63xx_spi_setup_transfer(struct spi_device *spi,
 static int bcm63xx_spi_setup(struct spi_device *spi)
 {
 	struct bcm63xx_spi *bs;
-	int retval;
+	int ret;
 
 	bs = spi_master_get_devdata(spi->master);
 
@@ -136,11 +166,11 @@ static int bcm63xx_spi_setup(struct spi_device *spi)
 		return -EINVAL;
 	}
 
-	retval = bcm63xx_spi_setup_transfer(spi, NULL);
-	if (retval < 0) {
+	ret = bcm63xx_spi_setup_transfer(spi, NULL);
+	if (ret < 0) {
 		dev_err(&spi->dev, "setup: unsupported mode bits %x\n",
 			spi->mode & ~MODEBITS);
-		return retval;
+		return ret;
 	}
 
 	dev_dbg(&spi->dev, "%s, mode %d, %u bits/w, %u nsec/bit\n",
@@ -152,20 +182,13 @@ static int bcm63xx_spi_setup(struct spi_device *spi)
 /* Fill the TX FIFO with as many bytes as possible */
 static void bcm63xx_spi_fill_tx_fifo(struct bcm63xx_spi *bs)
 {
-        u8 tail;
+	u8 size;
 
         /* Fill the Tx FIFO with as many bytes as possible */
-	tail = bcm_spi_readb(SPI_MSG_TAIL);
-
-        while ((tail < bs->fifo_size) && (bs->remaining_bytes > 0)) {
-                if (bs->tx_ptr)
-                        bcm_spi_writeb(*bs->tx_ptr++, SPI_MSG_DATA);
-		else
-			bcm_spi_writeb(0, SPI_MSG_DATA);
-
-                bs->remaining_bytes--;
-		tail = bcm_spi_readb(SPI_MSG_TAIL);
-        }
+	size = bs->remaining_bytes < bs->fifo_size ? bs->remaining_bytes :
+		bs->fifo_size;
+	memcpy_toio(bs->tx_io, bs->tx_ptr, size);
+	bs->remaining_bytes -= size;
 }
 
 static int bcm63xx_txrx_bufs(struct spi_device *spi, struct spi_transfer *t)
@@ -189,7 +212,7 @@ static int bcm63xx_txrx_bufs(struct spi_device *spi, struct spi_transfer *t)
 
 	/* Enable the command done interrupt which
 	 * we use to determine completion of a command */
-	bcm_spi_writeb(SPI_INTR_CMD_DONE, SPI_INT_MASK);
+	bcm_spi_writeb(bs, SPI_INTR_CMD_DONE, SPI_INT_MASK);
 
 	/* Fill in the Message control register */
 	msg_ctl = (t->len << SPI_BYTE_CNT_SHIFT);
@@ -201,37 +224,38 @@ static int bcm63xx_txrx_bufs(struct spi_device *spi, struct spi_transfer *t)
 	else if (t->tx_buf)
 		msg_ctl |= (SPI_HD_W << SPI_MSG_TYPE_SHIFT);
 
-	bcm_spi_writew(msg_ctl, SPI_MSG_CTL);
+	bcm_spi_writew(bs, msg_ctl, SPI_MSG_CTL);
 
 	/* Issue the transfer */
 	cmd = SPI_CMD_START_IMMEDIATE;
 	cmd |= (0 << SPI_CMD_PREPEND_BYTE_CNT_SHIFT);
-	bcm_spi_writew(cmd, SPI_CMD);
+	cmd |= (spi->chip_select << SPI_CMD_DEVICE_ID_SHIFT);
+	bcm_spi_writew(bs, cmd, SPI_CMD);
 	wait_for_completion(&bs->done);
 
 	/* Disable the CMD_DONE interrupt */
-	bcm_spi_writeb(0, SPI_INT_MASK);
+	bcm_spi_writeb(bs, 0, SPI_INT_MASK);
 
 	return t->len - bs->remaining_bytes;
 }
 
-static int bcm63xx_transfer(struct spi_device *spi, struct spi_message *msg)
+static int bcm63xx_transfer(struct spi_device *spi, struct spi_message *m)
 {
 	struct bcm63xx_spi *bs = spi_master_get_devdata(spi->master);
-	struct spi_transfer *xfer;
+	struct spi_transfer *t;
 	int ret = 0;
 
-	if (unlikely(list_empty(&msg->transfers)))
+	if (unlikely(list_empty(&m->transfers)))
 		return -EINVAL;
 
 	if (bs->stopping)
 		return -ESHUTDOWN;
 
-	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
-		ret += bcm63xx_txrx_bufs(spi, xfer);
+	list_for_each_entry(t, &m->transfers, transfer_list) {
+		ret += bcm63xx_txrx_bufs(spi, t);
 	}
 
-	msg->complete(msg->context);
+	m->complete(m->context);
 
 	return ret;
 }
@@ -247,40 +271,32 @@ static irqreturn_t bcm63xx_spi_interrupt(int irq, void *dev_id)
 	u16 cmd;
 
 	/* Read interupts and clear them immediately */
-	intr = bcm_spi_readb(SPI_INT_STATUS);
-	bcm_spi_writeb(SPI_INTR_CLEAR_ALL, SPI_INT_STATUS);
-	bcm_spi_writeb(0, SPI_INT_MASK);
+	intr = bcm_spi_readb(bs, SPI_INT_STATUS);
+	bcm_spi_writeb(bs, SPI_INTR_CLEAR_ALL, SPI_INT_STATUS);
+	bcm_spi_writeb(bs, 0, SPI_INT_MASK);
 
 	/* A tansfer completed */
 	if (intr & SPI_INTR_CMD_DONE) {
 		u8 rx_tail;
 
-		rx_tail = bcm_spi_readb(SPI_RX_TAIL);
+		rx_tail = bcm_spi_readb(bs, SPI_RX_TAIL);
 
 		/* Read out all the data */
-		if (rx_tail) {
-			u8 data;
-			u8 i = 0;
-
-			for(i = 0; i < rx_tail; i++) {
-				data = bcm_spi_readb(SPI_RX_DATA);
-				if (bs->rx_ptr)
-					*bs->rx_ptr++ = data;
-			}
-		}
+		if (rx_tail)
+			memcpy_fromio(bs->rx_ptr, bs->rx_io, rx_tail);
 
 		/* See if there is more data to send */
 		if (bs->remaining_bytes > 0) {
 			bcm63xx_spi_fill_tx_fifo(bs);
 
 			/* Start the transfer */
-			bcm_spi_writew(SPI_HD_W << SPI_MSG_TYPE_SHIFT,
+			bcm_spi_writew(bs, SPI_HD_W << SPI_MSG_TYPE_SHIFT,
 				       SPI_MSG_CTL);
-			cmd = bcm_spi_readw(SPI_CMD);
+			cmd = bcm_spi_readw(bs, SPI_CMD);
 			cmd |= SPI_CMD_START_IMMEDIATE;
 			cmd |= (0 << SPI_CMD_PREPEND_BYTE_CNT_SHIFT);
-			bcm_spi_writeb(SPI_INTR_CMD_DONE, SPI_INT_MASK);
-			bcm_spi_writew(cmd, SPI_CMD);
+			bcm_spi_writeb(bs, SPI_INTR_CMD_DONE, SPI_INT_MASK);
+			bcm_spi_writew(bs, cmd, SPI_CMD);
 		} else {
 			complete(&bs->done);
 		}
@@ -315,14 +331,14 @@ static int __init bcm63xx_spi_probe(struct platform_device *pdev)
 		goto out;
 	}
 
-	clk = clk_get(&pdev->dev, "spi");
+	clk = clk_get(dev, "spi");
 	if (IS_ERR(clk)) {
 		dev_err(dev, "no clock for device\n");
 		ret = -ENODEV;
 		goto out;
 	}
 
-	master = spi_alloc_master(&pdev->dev, sizeof(struct bcm63xx_spi));
+	master = spi_alloc_master(dev, sizeof(*bs));
 	if (!master) {
 		dev_err(dev, "out of memory\n");
 		ret = -ENOMEM;
@@ -333,16 +349,15 @@ static int __init bcm63xx_spi_probe(struct platform_device *pdev)
 	init_completion(&bs->done);
 
 	platform_set_drvdata(pdev, master);
-        bs->pdev = pdev;
+	bs->pdev = pdev;
 
-	if (!request_mem_region(r->start,
-			r->end - r->start, PFX)) {
+	if (!request_mem_region(r->start, r->end - r->start, PFX)) {
 		dev_err(dev, "iomem request failed\n");
 		ret = -ENXIO;
 		goto out_put_master;
 	}
 
-        bs->regs = ioremap_nocache(r->start, r->end - r->start);
+	bs->regs = ioremap_nocache(r->start, r->end - r->start);
 	if (!bs->regs) {
 		dev_err(dev, "unable to ioremap regs\n");
 		ret = -ENOMEM;
@@ -352,8 +367,7 @@ static int __init bcm63xx_spi_probe(struct platform_device *pdev)
 	bs->clk = clk;
 	bs->fifo_size = pdata->fifo_size;
 
-	ret = request_irq(irq, bcm63xx_spi_interrupt, 0,
-			  pdev->name, master);
+	ret = request_irq(irq, bcm63xx_spi_interrupt, 0, pdev->name, master);
 	if (ret) {
 		dev_err(dev, "unable to request irq\n");
 		goto out_unmap;
@@ -365,11 +379,13 @@ static int __init bcm63xx_spi_probe(struct platform_device *pdev)
 	master->transfer = bcm63xx_transfer;
 	bs->speed_hz = pdata->speed_hz;
 	bs->stopping = 0;
+	bs->tx_io = (u8*)(bs->regs + bcm63xx_spireg(SPI_MSG_DATA));
+	bs->rx_io = (const u8*)(bs->regs + bcm63xx_spireg(SPI_RX_DATA));
 	spin_lock_init(&bs->lock);
 
 	/* Initialize hardware */
 	clk_enable(bs->clk);
-	bcm_spi_writeb(SPI_INTR_CLEAR_ALL, SPI_INT_STATUS);
+	bcm_spi_writeb(bs, SPI_INTR_CLEAR_ALL, SPI_INT_STATUS);
 
 	/* register and we are done */
 	ret = spi_register_master(master);
@@ -381,7 +397,7 @@ static int __init bcm63xx_spi_probe(struct platform_device *pdev)
 	dev_info(dev, "at 0x%08x (irq %d, FIFOs size %d) v%s\n",
 		 r->start, irq, bs->fifo_size, DRV_VER);
 
-	return ret;
+	return 0;
 
 out_reset_hw:
 	clk_disable(clk);
@@ -398,12 +414,12 @@ out:
 
 static int __exit bcm63xx_spi_remove(struct platform_device *pdev)
 {
-	struct spi_master  *master = platform_get_drvdata(pdev);
-	struct bcm63xx_spi *bs = spi_master_get_devdata(master);
-	struct resource    *r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	struct spi_master	*master = platform_get_drvdata(pdev);
+	struct bcm63xx_spi	*bs = spi_master_get_devdata(master);
+	struct resource		*r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
 	/* reset spi block */
-	bcm_spi_writeb(0, SPI_INT_MASK);
+	bcm_spi_writeb(bs, 0, SPI_INT_MASK);
 	spin_lock(&bs->lock);
 	bs->stopping = 1;
 
@@ -453,7 +469,7 @@ static struct platform_driver bcm63xx_spi_driver = {
 		.owner	= THIS_MODULE,
 	},
 	.probe		= bcm63xx_spi_probe,
-	.remove		= bcm63xx_spi_remove,
+	.remove		= __exit_p(bcm63xx_spi_remove),
 	.suspend	= bcm63xx_spi_suspend,
 	.resume		= bcm63xx_spi_resume,
 };
@@ -474,6 +490,7 @@ module_exit(bcm63xx_spi_exit);
 
 MODULE_ALIAS("platform:bcm63xx_spi");
 MODULE_AUTHOR("Florian Fainelli <florian@openwrt.org>");
+MODULE_AUTHOR("Tanguy Bouzeloc <tanguy.bouzeloc@efixo.com>");
 MODULE_DESCRIPTION("Broadcom BCM63xx SPI Controller driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_VER);

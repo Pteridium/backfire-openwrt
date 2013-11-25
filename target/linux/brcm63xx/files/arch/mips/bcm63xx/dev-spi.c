@@ -4,6 +4,7 @@
  * for more details.
  *
  * Copyright (C) 2009 Florian Fainelli <florian@openwrt.org>
+ * Copyright (C) 2010 Tanguy Bouzeloc <tanguy.bouzeloc@efixo.com>
  */
 
 #include <linux/init.h>
