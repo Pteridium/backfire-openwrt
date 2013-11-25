@@ -27,32 +27,38 @@ define trxalign/squashfs
 -a 1024
 endef
 
+define Image/LimitName16
+$(shell expr substr "$(1)" 1 16)
+endef
+
 define Image/Build/CFE
 	# Generate the tagged image
 	$(STAGING_DIR_HOST)/bin/imagetag -i $(KDIR)/vmlinux.lzma.cfe -f $(KDIR)/root.$(1) \
-		-o $(BIN_DIR)/openwrt-$(4)-$(1)-cfe.bin \
-		-b $(2) -c $(3) -e $(LOADADDR) -l $(LOADADDR) \
-	        -r "$(5)" $(6)
-#		-b $(2) -c $(3) -e $(KERNEL_ENTRY) -l $(LOADADDR)
-
+		--output $(BIN_DIR)/openwrt-$(4)-$(1)-cfe.bin \
+		--boardid $(2) --chipid $(3) --entry $(KERNEL_ENTRY) \
+		--load-addr $(LOADADDR) --rsa-signature "$(5)" \
+		--info1 "$(call Image/LimitName16,$(4))" --info2 $(1) \
+		$(6) $(7) $(8) $(9)
 endef
 
 define Image/Build/CFEAGPF
 	# Generate the tagged image
 	$(STAGING_DIR_HOST)/bin/imagetag -i $(KDIR)/vmlinux.lzma.cfe -f $(KDIR)/root.$(1) \
-		-o $(BIN_DIR)/openwrt-$(5)-$(1)-cfe.bin \
-		-b $(2) -c $(3) -e $(LOADADDR) -l $(LOADADDR) \
-		-v 8 -m IMAGE -k 0x20000 -n $(4)
+		--output $(BIN_DIR)/openwrt-$(5)-$(1)-cfe.bin \
+		--boardid $(2) --chipid $(3) --entry $(LOADADDR) \
+		--load-addr $(LOADADDR) --tag-version 8 \
+		--signature2 IMAGE --block-size 0x20000 \
+		--image-offset $(4) --info1 "$(call Image/LimitName16,$(5))" --info2 $(1)
 endef
 
 define Image/Build/RG100A
 	# Generate the tagged image
 	$(STAGING_DIR_HOST)/bin/imagetag -i $(KDIR)/vmlinux.lzma.cfe -f $(KDIR)/root.$(1) \
-		-o $(BIN_DIR)/openwrt-$(5)-$(1)-cfe.bin \
-		-b $(2) -c $(3) -e $(LOADADDR) -l $(LOADADDR) \
-		-k 0x20000 -n $(4)
+		--output $(BIN_DIR)/openwrt-$(5)-$(1)-cfe.bin \
+		--boardid $(2) --chipid $(3) --entry $(LOADADDR) \
+		--load-addr $(LOADADDR) --block-size 0x20000 \
+		--image-offset $(4) --info1 "$(call Image/LimitName16,$(5))" --info2 $(1)
 endef
-
 
 define Image/Build/RedBoot
 	cp $(KDIR)/vmlinux.elf $(BIN_DIR)/openwrt-$(1)-vmlinux.elf
