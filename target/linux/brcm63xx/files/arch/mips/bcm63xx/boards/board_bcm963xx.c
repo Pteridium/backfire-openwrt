@@ -598,10 +598,12 @@ int __init board_register_devices(void)
 	while (led_count < ARRAY_SIZE(board.leds) && board.leds[led_count].name)
 		led_count++;
 
-	bcm63xx_led_data.num_leds = led_count;
-	bcm63xx_led_data.leds = board.leds;
+	if (led_count) {
+		bcm63xx_led_data.num_leds = led_count;
+		bcm63xx_led_data.leds = board.leds;
 
-	platform_device_register(&bcm63xx_gpio_leds);
+		platform_device_register(&bcm63xx_gpio_leds);
+	}
 
 	/* count number of BUTTONs defined by this device */
 	while (button_count < ARRAY_SIZE(board.buttons) && board.buttons[button_count].desc)
