@@ -33,8 +33,12 @@
 #include <bcm63xx_dev_usb_udc.h>
 #include <bcm63xx_dev_spi.h>
 #include <board_bcm963xx.h>
+#include <bcm_tag.h>
 
 #define PFX	"board_bcm963xx: "
+
+#define CFE_OFFSET_64K		0x10000
+#define CFE_OFFSET_128K		0x20000
 
 static struct bcm963xx_nvram nvram;
 static unsigned int mac_addr_used;
@@ -347,6 +351,11 @@ void __init board_prom_init(void)
 		return;
 	}
 
+	if (strcmp(cfe_version, "unknown") != 0) {
+		/* cfe present */
+		boardid_fixup(boot_addr);
+	}
+
 	/* find board by name */
 	for (i = 0; i < ARRAY_SIZE(bcm963xx_boards); i++) {
 		if (strncmp(nvram.name, bcm963xx_boards[i]->name,
@@ -522,6 +531,29 @@ static struct platform_device bcm63xx_gpio_buttons_device = {
 	.id		= 0,
 	.dev.platform_data = &bcm63xx_gpio_buttons_data,
 };
+
+static void __init boardid_fixup(u8 *boot_addr)
+{
+	struct bcm_tag *tag = (struct bcm_tag *)(boot_addr + CFE_OFFSET_64K);
+
+	/* check if bcm_tag is at 64k offset */
+	if (strncmp(nvram.name, tag->boardid, BOARDID_LEN) != 0) {
+		/* else try 128k */
+		tag = (struct bcm_tag *)(boot_addr + CFE_OFFSET_128K);
+		if (strncmp(nvram.name, tag->boardid, BOARDID_LEN) != 0) {
+			/* No tag found */
+			printk(KERN_DEBUG "No bcm_tag found!\n");
+			return;
+		}
+	}
+	/* check if we should override the boardid */
+	if (tag->information1[0] != '+')
+		return;
+
+	strncpy(nvram.name, &tag->information1[1], BOARDID_LEN);
+
+	printk(KERN_INFO "Overriding boardid with '%s'\n", nvram.name);
+}
 
 /*
  * third stage init callback, register all board devices.
