@@ -62,7 +62,11 @@ struct board_info {
 
 	/* Additional platform devices */
 	struct platform_device **devs;
-	unsigned int    num_devs;
+	unsigned int	num_devs;
+
+	/* Additional platform devices */
+	struct spi_board_info *spis;
+	unsigned int	num_spis;
 };
 
 #endif /* ! BOARD_BCM963XX_H_ */
