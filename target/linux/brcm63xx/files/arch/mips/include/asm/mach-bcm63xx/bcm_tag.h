@@ -53,18 +53,19 @@ struct bcm_tag {
 	char kernelLength[IMAGE_LEN];          // 128-137: Size of kernel
 	char dualImage[DUALFLAG_LEN];          // 138-139: Unused at present
 	char inactiveFlag[INACTIVEFLAG_LEN];   // 140-141: Unused at present
-        char rsa_signature[RSASIG_LEN];        // 142-161: RSA Signature (unused at present; some vendors may use this)
+	char rsa_signature[RSASIG_LEN];        // 142-161: RSA Signature (unused at present; some vendors may use this)
 	char information1[TAGINFO1_LEN];       // 162-191: Compilation and related information (not generated/used by OpenWRT)
-        char flashLayoutVer[FLASHLAYOUTVER_LEN];// 192-195: Version flash layout
-        char fskernelCRC[CRC_LEN];             // 196-199: kernel+rootfs CRC32
+	char flashLayoutVer[FLASHLAYOUTVER_LEN];// 192-195: Version flash layout
+	char fskernelCRC[CRC_LEN];             // 196-199: kernel+rootfs CRC32
 	char information2[TAGINFO2_LEN];       // 200-215: Unused at present except Alice Gate where is is information
 	char imageCRC[CRC_LEN];                // 216-219: CRC32 of image less imagetag (kernel for Alice Gate)
-        char rootfsCRC[CRC_LEN];               // 220-223: CRC32 of rootfs partition
-        char kernelCRC[CRC_LEN];               // 224-227: CRC32 of kernel partition
-     char rootLength[4];                        // 228-231: steal from reserved1 to keep the real root length so we can use in the flash map even after we have change the rootLength to 0 to satisfy devices that check CRC on every boot
-        char reserved1[4];                     // 232-235: Unused at present
-        char headerCRC[CRC_LEN];               // 236-239: CRC32 of header excluding tagVersion
-        char reserved2[16];                    // 240-255: Unused at present
+	char rootfsCRC[CRC_LEN];               // 220-223: CRC32 of rootfs partition
+	char kernelCRC[CRC_LEN];               // 224-227: CRC32 of kernel partition
+	
+	char rootLength[4];                        // 228-231: steal from reserved1 to keep the real root length so we can use in the flash map even after we have change the rootLength to 0 to satisfy devices that check CRC on every boot
+	char reserved1[4];                     // 232-235: Unused at present
+	char headerCRC[CRC_LEN];               // 236-239: CRC32 of header excluding tagVersion
+	char reserved2[16];                    // 240-255: Unused at present
 };
 
 #endif /* __BCM63XX_TAG_H */
