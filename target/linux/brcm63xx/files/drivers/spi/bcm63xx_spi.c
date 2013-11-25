@@ -26,202 +26,17 @@
 #include <linux/delay.h>
 #include <linux/interrupt.h>
 #include <linux/spi/spi.h>
-#include <linux/spi/spi_bitbang.h>
-#include <linux/gpio.h>
 #include <linux/completion.h>
 #include <linux/err.h>
 
-#include <bcm63xx_io.h>
-#include <bcm63xx_regs.h>
 #include <bcm63xx_dev_spi.h>
 
 #define PFX 		KBUILD_MODNAME
 #define DRV_VER		"0.1.2"
 
-enum bcm63xx_regs_spi {
-        SPI_CMD,
-        SPI_INT_STATUS,
-        SPI_INT_MASK_ST,
-        SPI_INT_MASK,
-        SPI_ST,
-        SPI_CLK_CFG,
-        SPI_FILL_BYTE,
-        SPI_MSG_TAIL,
-        SPI_RX_TAIL,
-        SPI_MSG_CTL,
-        SPI_MSG_DATA,
-        SPI_RX_DATA,
-};
-
-/*
- * register offsets
- */
-static const unsigned long bcm96338_regs_spi[] = {
-	[SPI_CMD]		= SPI_BCM_6338_SPI_CMD,
-	[SPI_INT_STATUS]	= SPI_BCM_6338_SPI_INT_STATUS,
-	[SPI_INT_MASK_ST]	= SPI_BCM_6338_SPI_MASK_INT_ST,
-	[SPI_INT_MASK]		= SPI_BCM_6338_SPI_INT_MASK,
-	[SPI_ST]		= SPI_BCM_6338_SPI_ST,
-	[SPI_CLK_CFG]		= SPI_BCM_6338_SPI_CLK_CFG,
-	[SPI_FILL_BYTE]		= SPI_BCM_6338_SPI_FILL_BYTE,
-	[SPI_MSG_TAIL]		= SPI_BCM_6338_SPI_MSG_TAIL,
-	[SPI_RX_TAIL]		= SPI_BCM_6338_SPI_RX_TAIL,
-	[SPI_MSG_CTL]		= SPI_BCM_6338_SPI_MSG_CTL,
-	[SPI_MSG_DATA]		= SPI_BCM_6338_SPI_MSG_DATA,
-	[SPI_RX_DATA]		= SPI_BCM_6338_SPI_RX_DATA,
-};
-
-static const unsigned long bcm96348_regs_spi[] = {
-	[SPI_CMD]		= SPI_BCM_6348_SPI_CMD,
-	[SPI_INT_STATUS]	= SPI_BCM_6348_SPI_INT_STATUS,
-	[SPI_INT_MASK_ST]	= SPI_BCM_6348_SPI_MASK_INT_ST,
-	[SPI_INT_MASK]		= SPI_BCM_6348_SPI_INT_MASK,
-	[SPI_ST]		= SPI_BCM_6348_SPI_ST,
-	[SPI_CLK_CFG]		= SPI_BCM_6348_SPI_CLK_CFG,
-	[SPI_FILL_BYTE]		= SPI_BCM_6348_SPI_FILL_BYTE,
-	[SPI_MSG_TAIL]		= SPI_BCM_6348_SPI_MSG_TAIL,
-	[SPI_RX_TAIL]		= SPI_BCM_6348_SPI_RX_TAIL,
-	[SPI_MSG_CTL]		= SPI_BCM_6348_SPI_MSG_CTL,
-	[SPI_MSG_DATA]		= SPI_BCM_6348_SPI_MSG_DATA,
-	[SPI_RX_DATA]		= SPI_BCM_6348_SPI_RX_DATA,
-};
-
-static const unsigned long bcm96358_regs_spi[] = {
-	[SPI_CMD]		= SPI_BCM_6358_SPI_CMD,
-	[SPI_INT_STATUS]	= SPI_BCM_6358_SPI_INT_STATUS,
-	[SPI_INT_MASK_ST]	= SPI_BCM_6358_SPI_MASK_INT_ST,
-	[SPI_INT_MASK]		= SPI_BCM_6358_SPI_INT_MASK,
-	[SPI_ST]		= SPI_BCM_6358_SPI_STATUS,
-	[SPI_CLK_CFG]		= SPI_BCM_6358_SPI_CLK_CFG,
-	[SPI_FILL_BYTE]		= SPI_BCM_6358_SPI_FILL_BYTE,
-	[SPI_MSG_TAIL]		= SPI_BCM_6358_SPI_MSG_TAIL,
-	[SPI_RX_TAIL]		= SPI_BCM_6358_SPI_RX_TAIL,
-	[SPI_MSG_CTL]		= SPI_BCM_6358_MSG_CTL,
-	[SPI_MSG_DATA]		= SPI_BCM_6358_SPI_MSG_DATA,
-	[SPI_RX_DATA]		= SPI_BCM_6358_SPI_RX_DATA,
-};
-
-
-#ifdef BCMCPU_RUNTIME_DETECT
-static const unsigned long *bcm63xx_regs_spi;
-
-static __init void bcm63xx_spi_regs_init(void)
-{
-	if (BCMCPU_IS_6338())
-		bcm63xx_regs_spi = bcm96338_regs_spi;
-	if (BCMCPU_IS_6348())
-		bcm63xx_regs_spi = bcm96348_regs_spi;
-	if (BCMCPU_IS_6358())
-		bcm63xx_regs_spi = bcm96358_regs_spi;
-}
-#else
-static __init void bcm63xx_spi_regs_init(void) { }
-#endif
-
-static inline unsigned long bcm63xx_spireg(enum bcm63xx_regs_spi reg)
-{
-#ifdef BCMCPU_RUNTIME_DETECT
-        return bcm63xx_regs_spi[reg];
-#else
-#ifdef CONFIG_BCM63XX_CPU_6338
-switch (reg) {
-	case SPI_CMD:
-		return SPI_BCM_6338_SPI_CMD;
-	case SPI_INT_STATUS:
-		return SPI_BCM_6338_SPI_INT_STATUS;
-	case SPI_INT_MASK_ST:
-		return SPI_BCM_6338_SPI_MASK_INT_ST;
-	case SPI_INT_MASK:
-		return SPI_BCM_6338_SPI_INT_MASK;
-	case SPI_ST:
-		return SPI_BCM_6338_SPI_ST;
-	case SPI_CLK_CFG:
-		return SPI_BCM_6338_SPI_CLK_CFG;
-	case SPI_FILL_BYTE:
-		return SPI_BCM_6338_SPI_FILL_BYTE;
-	case SPI_MSG_TAIL:
-		return SPI_BCM_6338_SPI_MSG_TAIL;
-	case SPI_RX_TAIL:
-		return SPI_BCM_6338_SPI_RX_TAIL;
-	case SPI_MSG_CTL:
-		return SPI_BCM_6338_SPI_MSG_CTL;
-	case SPI_MSG_DATA:
-		return SPI_BCM_6338_SPI_MSG_DATA;
-	case SPI_RX_DATA:
-		return SPI_BCM_6338_SPI_RX_DATA;
-}
-#endif
-#ifdef CONFIG_BCM63XX_CPU_6348
-switch (reg) {
-	case SPI_CMD:
-		return SPI_BCM_6348_SPI_CMD;
-	case SPI_INT_MASK_ST:
-		return SPI_BCM_6348_SPI_MASK_INT_ST;
-	case SPI_INT_MASK:
-		return SPI_BCM_6348_SPI_INT_MASK;
-	case SPI_INT_STATUS:
-		return SPI_BCM_6348_SPI_INT_STATUS;
-	case SPI_ST:
-		return SPI_BCM_6348_SPI_ST;
-	case SPI_CLK_CFG:
-		return SPI_BCM_6348_SPI_CLK_CFG;
-	case SPI_FILL_BYTE:
-		return SPI_BCM_6348_SPI_FILL_BYTE;
-	case SPI_MSG_TAIL:
-		return SPI_BCM_6348_SPI_MSG_TAIL;
-	case SPI_RX_TAIL:
-		return SPI_BCM_6348_SPI_RX_TAIL;
-	case SPI_MSG_CTL:
-		return SPI_BCM_6348_SPI_MSG_CTL;
-	case SPI_MSG_DATA:
-		return SPI_BCM_6348_SPI_MSG_DATA;
-	case SPI_RX_DATA:
-		return SPI_BCM_6348_SPI_RX_DATA;
-}
-#endif
-#ifdef CONFIG_BCM63XX_CPU_6358
-switch (reg) {
-	case SPI_CMD:
-		return SPI_BCM_6358_SPI_CMD;
-	case SPI_INT_STATUS:
-		return SPI_BCM_6358_SPI_INT_STATUS;
-	case SPI_INT_MASK_ST:
-		return SPI_BCM_6358_SPI_MASK_INT_ST;
-	case SPI_INT_MASK:
-		return SPI_BCM_6358_SPI_INT_MASK;
-	case SPI_ST:
-		return SPI_BCM_6358_SPI_STATUS;
-	case SPI_CLK_CFG:
-		return SPI_BCM_6358_SPI_CLK_CFG;
-	case SPI_FILL_BYTE:
-		return SPI_BCM_6358_SPI_FILL_BYTE;
-	case SPI_MSG_TAIL:
-		return SPI_BCM_6358_SPI_MSG_TAIL;
-	case SPI_RX_TAIL:
-		return SPI_BCM_6358_SPI_RX_TAIL;
-	case SPI_MSG_CTL:
-		return SPI_BCM_6358_MSG_CTL;
-	case SPI_MSG_DATA:
-		return SPI_BCM_6358_SPI_MSG_DATA;
-	case SPI_RX_DATA:
-		return SPI_BCM_6358_SPI_RX_DATA;
-}
-#endif
-#endif
-	return 0;
-}
-
-/*
- * helpers for the SPI register sets
- */
-#define bcm_spi_readb(b,o)      bcm_readb((b) + bcm63xx_spireg(o))
-#define bcm_spi_readw(b,o)      bcm_readw((b) + bcm63xx_spireg(o))
-#define bcm_spi_writeb(v,b,o)   bcm_writeb((v), (b) + bcm63xx_spireg(o))
-#define bcm_spi_writew(v,b,o)   bcm_writew((v), (b) + bcm63xx_spireg(o))
-
 struct bcm63xx_spi {
-	/* bitbang has to be first */
-        struct spi_bitbang	bitbang;
+	spinlock_t              lock;
+	int                     stopping;
         struct completion	done;
 
         void __iomem		*regs;
@@ -237,23 +52,8 @@ struct bcm63xx_spi {
 	int			remaining_bytes;
 
 	struct clk		*clk;
-	struct resource		*ioarea;
 	struct platform_device	*pdev;
 };
-
-static void bcm63xx_spi_chipselect(struct spi_device *spi, int is_on)
-{
-	struct bcm63xx_spi *bs = spi_master_get_devdata(spi->master);
-	u16 val;
-
-	val = bcm_spi_readw(bs->regs, SPI_CMD);
-	if (is_on == BITBANG_CS_INACTIVE)
-		val |= SPI_CMD_NOOP;
-	else if (is_on == BITBANG_CS_ACTIVE)
-		val |= (spi->chip_select << SPI_CMD_DEVICE_ID_SHIFT);
-
-	bcm_spi_writew(val, bs->regs, SPI_CMD);
-}
 
 static int bcm63xx_spi_setup_transfer(struct spi_device *spi,
 					struct spi_transfer *t)
@@ -307,9 +107,9 @@ static int bcm63xx_spi_setup_transfer(struct spi_device *spi,
 		break;
 	}
 
-	bcm_spi_writeb(clk_cfg, bs->regs, SPI_CLK_CFG);
+	bcm_spi_writeb(clk_cfg, SPI_CLK_CFG);
 	dev_dbg(&spi->dev, "Setting clock register to %d (hz %d, cmd %02x)\n",
-								div, hz, clk_cfg);
+		div, hz, clk_cfg);
 
 	return 0;
 }
@@ -319,12 +119,13 @@ static int bcm63xx_spi_setup_transfer(struct spi_device *spi,
 
 static int bcm63xx_spi_setup(struct spi_device *spi)
 {
-	struct spi_bitbang *bitbang;
 	struct bcm63xx_spi *bs;
 	int retval;
 
 	bs = spi_master_get_devdata(spi->master);
-	bitbang = &bs->bitbang;
+
+	if (bs->stopping)
+		return -ESHUTDOWN;
 
 	if (!spi->bits_per_word)
 		spi->bits_per_word = 8;
@@ -354,56 +155,85 @@ static void bcm63xx_spi_fill_tx_fifo(struct bcm63xx_spi *bs)
         u8 tail;
 
         /* Fill the Tx FIFO with as many bytes as possible */
-	tail = bcm_spi_readb(bs->regs, SPI_MSG_TAIL);
+	tail = bcm_spi_readb(SPI_MSG_TAIL);
+
         while ((tail < bs->fifo_size) && (bs->remaining_bytes > 0)) {
                 if (bs->tx_ptr)
-                        bcm_spi_writeb(*bs->tx_ptr++, bs->regs, SPI_MSG_DATA);
+                        bcm_spi_writeb(*bs->tx_ptr++, SPI_MSG_DATA);
 		else
-			bcm_spi_writeb(0, bs->regs, SPI_MSG_DATA);
+			bcm_spi_writeb(0, SPI_MSG_DATA);
+
                 bs->remaining_bytes--;
-		tail = bcm_spi_readb(bs->regs, SPI_MSG_TAIL);
+		tail = bcm_spi_readb(SPI_MSG_TAIL);
         }
 }
 
 static int bcm63xx_txrx_bufs(struct spi_device *spi, struct spi_transfer *t)
 {
 	struct bcm63xx_spi *bs = spi_master_get_devdata(spi->master);
-	u8 msg_ctl;
+	u16 msg_ctl;
 	u16 cmd;
 
 	dev_dbg(&spi->dev, "txrx: tx %p, rx %p, len %d\n",
-				t->tx_buf, t->rx_buf, t->len);
+		t->tx_buf, t->rx_buf, t->len);
 
 	/* Transmitter is inhibited */
 	bs->tx_ptr = t->tx_buf;
 	bs->rx_ptr = t->rx_buf;
-	bs->remaining_bytes = t->len;
 	init_completion(&bs->done);
 
-	bcm63xx_spi_fill_tx_fifo(bs);
+	if (t->tx_buf) {
+		bs->remaining_bytes = t->len;
+		bcm63xx_spi_fill_tx_fifo(bs);
+	}
 
 	/* Enable the command done interrupt which
 	 * we use to determine completion of a command */
-	bcm_spi_writeb(SPI_INTR_CMD_DONE, bs->regs, SPI_INT_MASK);
+	bcm_spi_writeb(SPI_INTR_CMD_DONE, SPI_INT_MASK);
 
 	/* Fill in the Message control register */
-	msg_ctl = bcm_spi_readb(bs->regs, SPI_MSG_CTL);
-	msg_ctl |= (t->len << SPI_BYTE_CNT_SHIFT);
-	msg_ctl |= (SPI_FD_RW << SPI_MSG_TYPE_SHIFT);
-	bcm_spi_writeb(msg_ctl, bs->regs, SPI_MSG_CTL);
+	msg_ctl = (t->len << SPI_BYTE_CNT_SHIFT);
+
+	if (t->rx_buf && t->tx_buf)
+		msg_ctl |= (SPI_FD_RW << SPI_MSG_TYPE_SHIFT);
+	else if (t->rx_buf)
+		msg_ctl |= (SPI_HD_R << SPI_MSG_TYPE_SHIFT);
+	else if (t->tx_buf)
+		msg_ctl |= (SPI_HD_W << SPI_MSG_TYPE_SHIFT);
+
+	bcm_spi_writew(msg_ctl, SPI_MSG_CTL);
 
 	/* Issue the transfer */
-	cmd = bcm_spi_readw(bs->regs, SPI_CMD);
-	cmd |= SPI_CMD_START_IMMEDIATE;
+	cmd = SPI_CMD_START_IMMEDIATE;
 	cmd |= (0 << SPI_CMD_PREPEND_BYTE_CNT_SHIFT);
-	bcm_spi_writew(cmd, bs->regs, SPI_CMD);
-
+	bcm_spi_writew(cmd, SPI_CMD);
 	wait_for_completion(&bs->done);
 
 	/* Disable the CMD_DONE interrupt */
-	bcm_spi_writeb(~(SPI_INTR_CMD_DONE), bs->regs, SPI_INT_MASK);
+	bcm_spi_writeb(0, SPI_INT_MASK);
 
 	return t->len - bs->remaining_bytes;
+}
+
+static int bcm63xx_transfer(struct spi_device *spi, struct spi_message *msg)
+{
+	struct bcm63xx_spi *bs = spi_master_get_devdata(spi->master);
+	struct spi_transfer *xfer;
+	int ret = 0;
+
+	if (unlikely(list_empty(&msg->transfers)))
+		return -EINVAL;
+
+	if (bs->stopping)
+		return -ESHUTDOWN;
+
+	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
+		ret += bcm63xx_txrx_bufs(spi, xfer);
+	}
+
+	msg->complete(msg->context);
+
+	return ret;
 }
 
 /* This driver supports single master mode only. Hence
@@ -417,23 +247,26 @@ static irqreturn_t bcm63xx_spi_interrupt(int irq, void *dev_id)
 	u16 cmd;
 
 	/* Read interupts and clear them immediately */
-	intr = bcm_spi_readb(bs->regs, SPI_INT_STATUS);
-	bcm_spi_writeb(SPI_INTR_CLEAR_ALL, bs->regs, SPI_INT_MASK);
+	intr = bcm_spi_readb(SPI_INT_STATUS);
+	bcm_spi_writeb(SPI_INTR_CLEAR_ALL, SPI_INT_STATUS);
+	bcm_spi_writeb(0, SPI_INT_MASK);
 
 	/* A tansfer completed */
 	if (intr & SPI_INTR_CMD_DONE) {
-		u8 rx_empty;
+		u8 rx_tail;
 
-		rx_empty = bcm_spi_readb(bs->regs, SPI_ST);
+		rx_tail = bcm_spi_readb(SPI_RX_TAIL);
+
 		/* Read out all the data */
-		while ((rx_empty & SPI_RX_EMPTY) == 0) {
+		if (rx_tail) {
 			u8 data;
+			u8 i = 0;
 
-			data = bcm_spi_readb(bs->regs, SPI_RX_DATA);
-			if (bs->rx_ptr)
-				*bs->rx_ptr++ = data;
-
-			rx_empty = bcm_spi_readb(bs->regs, SPI_RX_EMPTY);
+			for(i = 0; i < rx_tail; i++) {
+				data = bcm_spi_readb(SPI_RX_DATA);
+				if (bs->rx_ptr)
+					*bs->rx_ptr++ = data;
+			}
 		}
 
 		/* See if there is more data to send */
@@ -441,12 +274,16 @@ static irqreturn_t bcm63xx_spi_interrupt(int irq, void *dev_id)
 			bcm63xx_spi_fill_tx_fifo(bs);
 
 			/* Start the transfer */
-			cmd = bcm_spi_readw(bs->regs, SPI_CMD);
+			bcm_spi_writew(SPI_HD_W << SPI_MSG_TYPE_SHIFT,
+				       SPI_MSG_CTL);
+			cmd = bcm_spi_readw(SPI_CMD);
 			cmd |= SPI_CMD_START_IMMEDIATE;
 			cmd |= (0 << SPI_CMD_PREPEND_BYTE_CNT_SHIFT);
-			bcm_spi_writew(cmd, bs->regs, SPI_CMD);
-		} else
+			bcm_spi_writeb(SPI_INTR_CMD_DONE, SPI_INT_MASK);
+			bcm_spi_writew(cmd, SPI_CMD);
+		} else {
 			complete(&bs->done);
+		}
 	}
 
 	return IRQ_HANDLED;
@@ -456,6 +293,7 @@ static irqreturn_t bcm63xx_spi_interrupt(int irq, void *dev_id)
 static int __init bcm63xx_spi_probe(struct platform_device *pdev)
 {
 	struct resource *r;
+	struct device *dev = &pdev->dev;
 	struct bcm63xx_spi_pdata *pdata = pdev->dev.platform_data;
 	int irq;
 	struct spi_master *master;
@@ -465,37 +303,33 @@ static int __init bcm63xx_spi_probe(struct platform_device *pdev)
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!r) {
+		dev_err(dev, "no iomem\n");
 		ret = -ENXIO;
 		goto out;
 	}
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
+		dev_err(dev, "no irq\n");
 		ret = -ENXIO;
 		goto out;
 	}
 
-	bcm63xx_spi_regs_init();
-
 	clk = clk_get(&pdev->dev, "spi");
 	if (IS_ERR(clk)) {
-		dev_err(&pdev->dev, "No clock for device\n");
+		dev_err(dev, "no clock for device\n");
 		ret = -ENODEV;
 		goto out;
 	}
 
 	master = spi_alloc_master(&pdev->dev, sizeof(struct bcm63xx_spi));
 	if (!master) {
+		dev_err(dev, "out of memory\n");
 		ret = -ENOMEM;
 		goto out_free;
 	}
 
 	bs = spi_master_get_devdata(master);
-	bs->bitbang.master = spi_master_get(master);
-	bs->bitbang.chipselect = bcm63xx_spi_chipselect;
-	bs->bitbang.setup_transfer = bcm63xx_spi_setup_transfer;
-	bs->bitbang.txrx_bufs = bcm63xx_txrx_bufs;
-	bs->bitbang.master->setup = bcm63xx_spi_setup;
 	init_completion(&bs->done);
 
 	platform_set_drvdata(pdev, master);
@@ -503,43 +337,49 @@ static int __init bcm63xx_spi_probe(struct platform_device *pdev)
 
 	if (!request_mem_region(r->start,
 			r->end - r->start, PFX)) {
+		dev_err(dev, "iomem request failed\n");
 		ret = -ENXIO;
-		goto out_free;
+		goto out_put_master;
 	}
 
         bs->regs = ioremap_nocache(r->start, r->end - r->start);
 	if (!bs->regs) {
-		printk(KERN_ERR PFX " unable to ioremap regs\n");
+		dev_err(dev, "unable to ioremap regs\n");
 		ret = -ENOMEM;
-		goto out_free;
+		goto out_put_master;
 	}
 	bs->irq = irq;
 	bs->clk = clk;
 	bs->fifo_size = pdata->fifo_size;
 
 	ret = request_irq(irq, bcm63xx_spi_interrupt, 0,
-				pdev->name, master);
+			  pdev->name, master);
 	if (ret) {
-		printk(KERN_ERR PFX " unable to request irq\n");
+		dev_err(dev, "unable to request irq\n");
 		goto out_unmap;
 	}
 
 	master->bus_num = pdata->bus_num;
 	master->num_chipselect = pdata->num_chipselect;
+	master->setup = bcm63xx_spi_setup;
+	master->transfer = bcm63xx_transfer;
 	bs->speed_hz = pdata->speed_hz;
+	bs->stopping = 0;
+	spin_lock_init(&bs->lock);
 
 	/* Initialize hardware */
 	clk_enable(bs->clk);
-	bcm_spi_writeb(SPI_INTR_CLEAR_ALL, bs->regs, SPI_INT_MASK);
+	bcm_spi_writeb(SPI_INTR_CLEAR_ALL, SPI_INT_STATUS);
 
-	dev_info(&pdev->dev, " at 0x%08x (irq %d, FIFOs size %d) v%s\n",
-				r->start, irq, bs->fifo_size, DRV_VER);
-
-	ret = spi_bitbang_start(&bs->bitbang);
+	/* register and we are done */
+	ret = spi_register_master(master);
 	if (ret) {
-		dev_err(&pdev->dev, "spi_bitbang_start FAILED\n");
+		dev_err(dev, "spi register failed\n");
 		goto out_reset_hw;
 	}
+
+	dev_info(dev, "at 0x%08x (irq %d, FIFOs size %d) v%s\n",
+		 r->start, irq, bs->fifo_size, DRV_VER);
 
 	return ret;
 
@@ -548,25 +388,36 @@ out_reset_hw:
 	free_irq(irq, master);
 out_unmap:
 	iounmap(bs->regs);
+out_put_master:
+	spi_master_put(master);
 out_free:
 	clk_put(clk);
-	spi_master_put(master);
 out:
 	return ret;
 }
 
 static int __exit bcm63xx_spi_remove(struct platform_device *pdev)
 {
-	struct spi_master	*master = platform_get_drvdata(pdev);
-	struct bcm63xx_spi	*bs = spi_master_get_devdata(master);
+	struct spi_master  *master = platform_get_drvdata(pdev);
+	struct bcm63xx_spi *bs = spi_master_get_devdata(master);
+	struct resource    *r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
-	spi_bitbang_stop(&bs->bitbang);
+	/* reset spi block */
+	bcm_spi_writeb(0, SPI_INT_MASK);
+	spin_lock(&bs->lock);
+	bs->stopping = 1;
+
+	/* HW shutdown */
 	clk_disable(bs->clk);
 	clk_put(bs->clk);
+
+	spin_unlock(&bs->lock);
+
 	free_irq(bs->irq, master);
 	iounmap(bs->regs);
+	release_mem_region(r->start, r->end - r->start);
 	platform_set_drvdata(pdev, 0);
-	spi_master_put(bs->bitbang.master);
+	spi_unregister_master(master);
 
 	return 0;
 }
@@ -584,7 +435,7 @@ static int bcm63xx_spi_suspend(struct platform_device *pdev, pm_message_t mesg)
 
 static int bcm63xx_spi_resume(struct platform_device *pdev)
 {
-	struct bcm63xx_spi	*bs = spi_master_get_devdata(master);
+	struct spi_master	*master = platform_get_drvdata(pdev);
 	struct bcm63xx_spi	*bs = spi_master_get_devdata(master);
 
 	clk_enable(bs->clk);
