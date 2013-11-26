@@ -533,10 +533,6 @@ static struct platform_device mtd_dev = {
 	.num_resources		= ARRAY_SIZE(mtd_resources),
 };
 
-static struct resource gpiodev_resource = {
-	.start			= 0xFFFFFFFF,
-};
-
 static struct gpio_led_platform_data bcm63xx_led_data;
 
 static struct platform_device bcm63xx_gpio_leds = {
@@ -623,8 +619,6 @@ int __init board_register_devices(void)
 	mtd_resources[0].end = 0x1FFFFFFF;
 
 	platform_device_register(&mtd_dev);
-
-	platform_device_register_simple("GPIODEV", 0, &gpiodev_resource, 1);
 
 	/* count number of LEDs defined by this device */
 	while (led_count < ARRAY_SIZE(board.leds) && board.leds[led_count].name)
