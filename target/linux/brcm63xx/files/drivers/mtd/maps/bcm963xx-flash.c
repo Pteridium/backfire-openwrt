@@ -60,11 +60,12 @@ static int parse_cfe_partitions( struct mtd_info *master, struct mtd_partition *
 	int ret;
 	size_t retlen;
 	unsigned int rootfsaddr, kerneladdr, spareaddr;
-	unsigned int rootfslen, kernellen, sparelen;
+	unsigned int rootfslen, kernellen, sparelen, totallen;
 	int namelen = 0;
 	int i, offset;
 	char *boardid;
-	char *tagversion;
+    char *tagversion;
+	struct squashfs_super_block sb;
 
 	/* Allocate memory for buffer */
 	buf = vmalloc(sizeof(struct bcm_tag));
@@ -78,20 +79,32 @@ static int parse_cfe_partitions( struct mtd_info *master, struct mtd_partition *
 		return -EIO;
 	}
 
-	sscanf(buf->kernelAddress, "%u", &kerneladdr);
-	sscanf(buf->kernelLength, "%u", &kernellen);
-	rootfslen = *(uint32_t *)(&(buf->rootLength[0]));
-	tagversion = &(buf->tagVersion[0]);
-	boardid = &(buf->boardid[0]);
+	sscanf(buf->kernel_address, "%u", &kerneladdr);
+	sscanf(buf->kernel_length, "%u", &kernellen);
+	//sscanf(buf->total_length, "%u", &totallen);
+	//rootfslen = buf->real_rootfs_length;
+	sscanf(buf->root_length, "%u", &rootfslen);
+	tagversion = &(buf->tag_version[0]);
+	boardid = &(buf->board_id[0]);
 
 	printk(KERN_INFO PFX "CFE boot tag found with version %s and board type %s\n",tagversion, boardid);
 
 	kerneladdr = kerneladdr - EXTENDED_SIZE;
 	rootfsaddr = kerneladdr + kernellen;
 
-	rootfslen = ( ( rootfslen % master->erasesize ) > 0 ? (((rootfslen / master->erasesize) + 1 ) * master->erasesize) : rootfslen);
+	//	offset = master->erasesize + sizeof(struct bcm_tag) + kernellen;
+	offset = rootfsaddr;
+	ret = master->read(master, offset, sizeof(sb), &retlen, (void *) &sb);
+	if (ret || (retlen != sizeof(sb))) {
+	  printk(KERN_ALERT PFX "parse_cfe_partitions: error occured while reading "
+			 "from \"%s\"\n", master->name);
+	  return -EINVAL;
+	}
 
-	spareaddr = rootfsaddr + rootfslen;
+	rootfslen = ( ( rootfslen % master->erasesize ) > 0 ? (((rootfslen / master->erasesize) + 1 ) * master->erasesize) : rootfslen);
+	totallen = rootfslen + kernellen + sizeof(struct bcm_tag);
+
+	spareaddr = roundup(totallen, master->erasesize) + master->erasesize;
 	sparelen = master->size - spareaddr - master->erasesize;
 
 	/* Determine number of partitions */

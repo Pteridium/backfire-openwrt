@@ -343,10 +343,10 @@ static void __init boardid_fixup(u8 *boot_addr)
 	struct bcm_tag *tag = (struct bcm_tag *)(boot_addr + CFE_OFFSET_64K);
 
 	/* check if bcm_tag is at 64k offset */
-	if (strncmp(nvram.name, tag->boardid, BOARDID_LEN) != 0) {
+	if (strncmp(nvram.name, tag->board_id, BOARDID_LEN) != 0) {
 		/* else try 128k */
 		tag = (struct bcm_tag *)(boot_addr + CFE_OFFSET_128K);
-		if (strncmp(nvram.name, tag->boardid, BOARDID_LEN) != 0) {
+		if (strncmp(nvram.name, tag->board_id, BOARDID_LEN) != 0) {
 			/* No tag found */
 			printk(KERN_DEBUG "No bcm_tag found!\n");
 			return;
