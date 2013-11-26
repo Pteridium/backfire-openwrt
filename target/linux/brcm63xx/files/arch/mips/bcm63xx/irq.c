@@ -29,8 +29,8 @@ static void bcm63xx_irq_dispatch_internal(void)
 	u32 pending;
 	static int i;
 
-	pending = bcm_perf_readl(PERF_IRQMASK_REG) &
-		bcm_perf_readl(PERF_IRQSTAT_REG);
+	pending = bcm_perf_readl(PERF_IRQMASK_6338_REG) &
+		bcm_perf_readl(PERF_IRQSTAT_6338_REG);
 
 	if (!pending)
 		return ;
@@ -80,9 +80,9 @@ static inline void bcm63xx_internal_irq_mask(unsigned int irq)
 	u32 mask;
 
 	irq -= IRQ_INTERNAL_BASE;
-	mask = bcm_perf_readl(PERF_IRQMASK_REG);
+	mask = bcm_perf_readl(PERF_IRQMASK_6338_REG);
 	mask &= ~(1 << irq);
-	bcm_perf_writel(mask, PERF_IRQMASK_REG);
+	bcm_perf_writel(mask, PERF_IRQMASK_6338_REG);
 }
 
 static void bcm63xx_internal_irq_unmask(unsigned int irq)
@@ -90,9 +90,9 @@ static void bcm63xx_internal_irq_unmask(unsigned int irq)
 	u32 mask;
 
 	irq -= IRQ_INTERNAL_BASE;
-	mask = bcm_perf_readl(PERF_IRQMASK_REG);
+	mask = bcm_perf_readl(PERF_IRQMASK_6338_REG);
 	mask |= (1 << irq);
-	bcm_perf_writel(mask, PERF_IRQMASK_REG);
+	bcm_perf_writel(mask, PERF_IRQMASK_6338_REG);
 }
 
 static unsigned int bcm63xx_internal_irq_startup(unsigned int irq)
@@ -110,9 +110,9 @@ static void bcm63xx_external_irq_mask(unsigned int irq)
 	u32 reg;
 
 	irq -= IRQ_EXT_BASE;
-	reg = bcm_perf_readl(PERF_EXTIRQ_CFG_REG);
+	reg = bcm_perf_readl(PERF_EXTIRQ_CFG_REG_6338);
 	reg &= ~EXTIRQ_CFG_MASK(irq);
-	bcm_perf_writel(reg, PERF_EXTIRQ_CFG_REG);
+	bcm_perf_writel(reg, PERF_EXTIRQ_CFG_REG_6338);
 }
 
 static void bcm63xx_external_irq_unmask(unsigned int irq)
@@ -120,9 +120,9 @@ static void bcm63xx_external_irq_unmask(unsigned int irq)
 	u32 reg;
 
 	irq -= IRQ_EXT_BASE;
-	reg = bcm_perf_readl(PERF_EXTIRQ_CFG_REG);
+	reg = bcm_perf_readl(PERF_EXTIRQ_CFG_REG_6338);
 	reg |= EXTIRQ_CFG_MASK(irq);
-	bcm_perf_writel(reg, PERF_EXTIRQ_CFG_REG);
+	bcm_perf_writel(reg, PERF_EXTIRQ_CFG_REG_6338);
 }
 
 static void bcm63xx_external_irq_clear(unsigned int irq)
@@ -130,9 +130,9 @@ static void bcm63xx_external_irq_clear(unsigned int irq)
 	u32 reg;
 
 	irq -= IRQ_EXT_BASE;
-	reg = bcm_perf_readl(PERF_EXTIRQ_CFG_REG);
+	reg = bcm_perf_readl(PERF_EXTIRQ_CFG_REG_6338);
 	reg |= EXTIRQ_CFG_CLEAR(irq);
-	bcm_perf_writel(reg, PERF_EXTIRQ_CFG_REG);
+	bcm_perf_writel(reg, PERF_EXTIRQ_CFG_REG_6338);
 }
 
 static unsigned int bcm63xx_external_irq_startup(unsigned int irq)
@@ -163,7 +163,7 @@ static int bcm63xx_external_irq_set_type(unsigned int irq,
 	if (flow_type == IRQ_TYPE_NONE)
 		flow_type = IRQ_TYPE_LEVEL_LOW;
 
-	reg = bcm_perf_readl(PERF_EXTIRQ_CFG_REG);
+	reg = bcm_perf_readl(PERF_EXTIRQ_CFG_REG_6338);
 	switch (flow_type) {
 	case IRQ_TYPE_EDGE_BOTH:
 		reg &= ~EXTIRQ_CFG_LEVELSENSE(irq);
@@ -196,7 +196,7 @@ static int bcm63xx_external_irq_set_type(unsigned int irq,
 		printk(KERN_ERR "bogus flow type combination given !\n");
 		return -EINVAL;
 	}
-	bcm_perf_writel(reg, PERF_EXTIRQ_CFG_REG);
+	bcm_perf_writel(reg, PERF_EXTIRQ_CFG_REG_6338);
 
 	if (flow_type & (IRQ_TYPE_LEVEL_LOW | IRQ_TYPE_LEVEL_HIGH))  {
 		desc->status |= IRQ_LEVEL;

@@ -30,7 +30,6 @@
 #include <bcm63xx_dev_pcmcia.h>
 #include <bcm63xx_dev_usb_ohci.h>
 #include <bcm63xx_dev_usb_ehci.h>
-#include <bcm63xx_dev_usb_udc.h>
 #include <bcm63xx_dev_spi.h>
 #include <board_bcm963xx.h>
 #include <bcm_tag.h>
@@ -441,15 +440,27 @@ void __init board_prom_init(void)
 
 #ifdef CONFIG_PCI
 	if (board.has_pci) {
-		bcm63xx_pci_enabled = 1;
 		if (BCMCPU_IS_6348())
 			val |= GPIO_MODE_6348_G2_PCI;
+
+		if (BCMCPU_IS_6368())
+			val |= GPIO_MODE_6368_PCI_REQ1 |
+				GPIO_MODE_6368_PCI_GNT1 |
+				GPIO_MODE_6368_PCI_INTB |
+				GPIO_MODE_6368_PCI_REQ0 |
+				GPIO_MODE_6368_PCI_GNT0;
 	}
 #endif
 
 	if (board.has_pccard) {
 		if (BCMCPU_IS_6348())
 			val |= GPIO_MODE_6348_G1_MII_PCCARD;
+
+		if (BCMCPU_IS_6368())
+			val |= GPIO_MODE_6368_PCMCIA_CD1 |
+				GPIO_MODE_6368_PCMCIA_CD2 |
+				GPIO_MODE_6368_PCMCIA_VS1 |
+				GPIO_MODE_6368_PCMCIA_VS2;
 	}
 
 	if (board.has_enet0 && !board.enet0.use_internal_phy) {
@@ -577,6 +588,10 @@ int __init board_register_devices(void)
 	    !board_get_mac_address(board.enet1.mac_addr))
 		bcm63xx_enet_register(1, &board.enet1);
 
+	if (board.has_enetsw &&
+	    !board_get_mac_address(board.enetsw.mac_addr))
+		bcm63xx_enetsw_register(&board.enetsw);
+
 	if (board.has_ehci0)
 		bcm63xx_ehci_register();
 
@@ -585,9 +600,6 @@ int __init board_register_devices(void)
 
 	if (board.has_dsp)
 		bcm63xx_dsp_register(&board.dsp);
-
-	if (board.has_udc0)
-		bcm63xx_udc_register();
 
 	/* Generate MAC address for WLAN and
 	 * register our SPROM */
@@ -609,12 +621,9 @@ int __init board_register_devices(void)
 		spi_register_board_info(board.spis, board.num_spis);
 
 	/* read base address of boot chip select (0) */
-	if (BCMCPU_IS_6345())
-		val = 0x1fc00000;
-	else {
-		val = bcm_mpi_readl(MPI_CSBASE_REG(0));
-		val &= MPI_CSBASE_BASE_MASK;
-	}
+	val = bcm_mpi_readl(MPI_CSBASE_REG(0));
+	val &= MPI_CSBASE_BASE_MASK;
+
 	mtd_resources[0].start = val;
 	mtd_resources[0].end = 0x1FFFFFFF;
 
@@ -641,6 +650,11 @@ int __init board_register_devices(void)
 
 		platform_device_register(&bcm63xx_gpio_buttons_device);
 	}
+
+#ifdef CONFIG_PCI
+	if (board.has_pci)
+		bcm63xx_pci_register();
+#endif
 
 	return 0;
 }

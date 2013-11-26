@@ -40,6 +40,7 @@ struct board_info {
 	/* enabled feature/device */
 	unsigned int	has_enet0:1;
 	unsigned int	has_enet1:1;
+	unsigned int	has_enetsw:1;
 	unsigned int	has_pci:1;
 	unsigned int	has_pccard:1;
 	unsigned int	has_ohci0:1;
@@ -47,11 +48,11 @@ struct board_info {
 	unsigned int	has_dsp:1;
 	unsigned int	has_uart0:1;
 	unsigned int	has_uart1:1;
-	unsigned int	has_udc0:1;
 
 	/* ethernet config */
 	struct bcm63xx_enet_platform_data enet0;
 	struct bcm63xx_enet_platform_data enet1;
+	struct bcm63xx_enetsw_platform_data enetsw;
 
 	/* DSP config */
 	struct bcm63xx_dsp_platform_data dsp;
