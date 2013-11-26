@@ -15,7 +15,7 @@ LINUX_VERSION:=2.6.32.27
 
 include $(INCLUDE_DIR)/target.mk
 
-DEFAULT_PACKAGES += wpad-mini kmod-switch gpioctl kmod-input-gpio-buttons \
+DEFAULT_PACKAGES += kmod-switch kmod-input-gpio-buttons \
 	kmod-button-hotplug
 
 define Target/Description
