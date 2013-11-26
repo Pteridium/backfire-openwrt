@@ -33,7 +33,7 @@
 #include <sys/ioctl.h>
 #include <mtd/mtd-user.h>
 
-#include "bcm963xx_tag.h"
+#include "bcm_tag.h"
 #include "mtd.h"
 #include "crc32.h"
 
