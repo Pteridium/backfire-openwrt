@@ -604,8 +604,7 @@ int __init board_register_devices(void)
 	if (board.has_udc0)
 		bcm63xx_udc_register();
 
-	if (!BCMCPU_IS_6345())
-		bcm63xx_spi_register();
+	bcm63xx_spi_register();
 
 	if (board.num_devs)
 		platform_add_devices(board.devs, board.num_devs);

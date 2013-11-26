@@ -3,7 +3,7 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
- * Copyright (C) 2009 Florian Fainelli <florian@openwrt.org>
+ * Copyright (C) 2009-2011 Florian Fainelli <florian@openwrt.org>
  * Copyright (C) 2010 Tanguy Bouzeloc <tanguy.bouzeloc@efixo.com>
  */
 
@@ -20,48 +20,15 @@
  * register offsets
  */
 static const unsigned long bcm96338_regs_spi[] = {
-	[SPI_CMD]		= SPI_BCM_6338_SPI_CMD,
-	[SPI_INT_STATUS]	= SPI_BCM_6338_SPI_INT_STATUS,
-	[SPI_INT_MASK_ST]	= SPI_BCM_6338_SPI_MASK_INT_ST,
-	[SPI_INT_MASK]		= SPI_BCM_6338_SPI_INT_MASK,
-	[SPI_ST]		= SPI_BCM_6338_SPI_ST,
-	[SPI_CLK_CFG]		= SPI_BCM_6338_SPI_CLK_CFG,
-	[SPI_FILL_BYTE]		= SPI_BCM_6338_SPI_FILL_BYTE,
-	[SPI_MSG_TAIL]		= SPI_BCM_6338_SPI_MSG_TAIL,
-	[SPI_RX_TAIL]		= SPI_BCM_6338_SPI_RX_TAIL,
-	[SPI_MSG_CTL]		= SPI_BCM_6338_SPI_MSG_CTL,
-	[SPI_MSG_DATA]		= SPI_BCM_6338_SPI_MSG_DATA,
-	[SPI_RX_DATA]		= SPI_BCM_6338_SPI_RX_DATA,
+	__GEN_SPI_REGS_TABLE(6338)
 };
 
 static const unsigned long bcm96348_regs_spi[] = {
-	[SPI_CMD]		= SPI_BCM_6348_SPI_CMD,
-	[SPI_INT_STATUS]	= SPI_BCM_6348_SPI_INT_STATUS,
-	[SPI_INT_MASK_ST]	= SPI_BCM_6348_SPI_MASK_INT_ST,
-	[SPI_INT_MASK]		= SPI_BCM_6348_SPI_INT_MASK,
-	[SPI_ST]		= SPI_BCM_6348_SPI_ST,
-	[SPI_CLK_CFG]		= SPI_BCM_6348_SPI_CLK_CFG,
-	[SPI_FILL_BYTE]		= SPI_BCM_6348_SPI_FILL_BYTE,
-	[SPI_MSG_TAIL]		= SPI_BCM_6348_SPI_MSG_TAIL,
-	[SPI_RX_TAIL]		= SPI_BCM_6348_SPI_RX_TAIL,
-	[SPI_MSG_CTL]		= SPI_BCM_6348_SPI_MSG_CTL,
-	[SPI_MSG_DATA]		= SPI_BCM_6348_SPI_MSG_DATA,
-	[SPI_RX_DATA]		= SPI_BCM_6348_SPI_RX_DATA,
+	__GEN_SPI_REGS_TABLE(6348)
 };
 
 static const unsigned long bcm96358_regs_spi[] = {
-	[SPI_CMD]		= SPI_BCM_6358_SPI_CMD,
-	[SPI_INT_STATUS]	= SPI_BCM_6358_SPI_INT_STATUS,
-	[SPI_INT_MASK_ST]	= SPI_BCM_6358_SPI_MASK_INT_ST,
-	[SPI_INT_MASK]		= SPI_BCM_6358_SPI_INT_MASK,
-	[SPI_ST]		= SPI_BCM_6358_SPI_STATUS,
-	[SPI_CLK_CFG]		= SPI_BCM_6358_SPI_CLK_CFG,
-	[SPI_FILL_BYTE]		= SPI_BCM_6358_SPI_FILL_BYTE,
-	[SPI_MSG_TAIL]		= SPI_BCM_6358_SPI_MSG_TAIL,
-	[SPI_RX_TAIL]		= SPI_BCM_6358_SPI_RX_TAIL,
-	[SPI_MSG_CTL]		= SPI_BCM_6358_MSG_CTL,
-	[SPI_MSG_DATA]		= SPI_BCM_6358_SPI_MSG_DATA,
-	[SPI_RX_DATA]		= SPI_BCM_6358_SPI_RX_DATA,
+	__GEN_SPI_REGS_TABLE(6358)
 };
 
 const unsigned long *bcm63xx_regs_spi;
@@ -114,6 +81,9 @@ int __init bcm63xx_spi_register(void)
 	spi_resources[0].end = spi_resources[0].start;
 	spi_resources[0].end += RSET_SPI_SIZE - 1;
 	spi_resources[1].start = bcm63xx_get_irq_number(IRQ_SPI);
+
+	if (BCMCPU_IS_6345())
+		return -ENODEV;
 
 	/* Fill in platform data */
 	if (BCMCPU_IS_6338() || BCMCPU_IS_6348())
