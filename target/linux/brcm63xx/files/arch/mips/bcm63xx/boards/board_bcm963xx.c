@@ -590,6 +590,9 @@ int __init board_register_devices(void)
 	if (board.has_dsp)
 		bcm63xx_dsp_register(&board.dsp);
 
+	if (board.has_udc0)
+		bcm63xx_udc_register();
+
 	/* Generate MAC address for WLAN and
 	 * register our SPROM */
 #ifdef CONFIG_SSB_PCIHOST
@@ -600,9 +603,6 @@ int __init board_register_devices(void)
 			printk(KERN_ERR "failed to register fallback SPROM\n");
 	}
 #endif
-
-	if (board.has_udc0)
-		bcm63xx_udc_register();
 
 	bcm63xx_spi_register();
 
