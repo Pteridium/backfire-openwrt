@@ -34,9 +34,9 @@
  static void __devinit quirk_p64h2_1k_io(struct pci_dev *dev)
  {
 @@ -2546,6 +2549,7 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_I
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x1518, quirk_i82576_sriov);
- 
- #endif	/* CONFIG_PCI_IOV */
+ }
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x0102, disable_igfx_irq);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x010a, disable_igfx_irq);
 +#endif /* !CONFIG_PCI_DISABLE_COMMON_QUIRKS */
  
  static void pci_do_fixups(struct pci_dev *dev, struct pci_fixup *f,
