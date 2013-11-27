@@ -9,11 +9,11 @@ include $(TOPDIR)/rules.mk
 ARCH:=arm
 BOARD:=orion
 BOARDNAME:=Marvell Orion
-FEATURES:=squashfs
+FEATURES:=squashfs broken
 SUBTARGETS=generic harddisk
 CFLAGS=-Os -pipe -march=armv5t -mtune=xscale -funit-at-a-time
 
-LINUX_VERSION:=2.6.32.27
+LINUX_VERSION:=2.6.32.61
 
 include $(INCLUDE_DIR)/target.mk
 

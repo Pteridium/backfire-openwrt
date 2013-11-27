@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 ARCH:=powerpc
 BOARD:=ppc44x
 BOARDNAME:=AMCC/IBM PPC44x
-FEATURES:=squashfs
+FEATURES:=squashfs broken
 CFLAGS:=-Os -pipe -funit-at-a-time -mcpu=440
 
-LINUX_VERSION:=2.6.32.27
+LINUX_VERSION:=2.6.32.61
 
 include $(INCLUDE_DIR)/target.mk
 

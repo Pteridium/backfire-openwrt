@@ -9,9 +9,9 @@ include $(TOPDIR)/rules.mk
 ARCH:=mipsel
 BOARD:=ar7
 BOARDNAME:=TI AR7
-FEATURES:=squashfs jffs2 atm
+FEATURES:=squashfs jffs2 atm broken
 
-LINUX_VERSION:=2.6.32.27
+LINUX_VERSION:=2.6.32.61
 
 include $(INCLUDE_DIR)/target.mk
 

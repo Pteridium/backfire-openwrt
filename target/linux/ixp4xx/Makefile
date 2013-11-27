@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 ARCH:=armeb
 BOARD:=ixp4xx
 BOARDNAME:=Intel IXP4xx
-FEATURES:=squashfs
+FEATURES:=squashfs broken
 SUBTARGETS=generic harddisk
 
-LINUX_VERSION:=2.6.32.27
+LINUX_VERSION:=2.6.32.61
 
 include $(INCLUDE_DIR)/target.mk
 

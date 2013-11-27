@@ -9,9 +9,9 @@ include $(TOPDIR)/rules.mk
 ARCH:=mipsel
 BOARD:=brcm47xx
 BOARDNAME:=Broadcom BCM947xx/953xx
-FEATURES:=squashfs usb pcmcia
+FEATURES:=squashfs usb pcmcia broken
 
-LINUX_VERSION:=2.6.32.27
+LINUX_VERSION:=2.6.32.61
 
 include $(INCLUDE_DIR)/target.mk
 DEFAULT_PACKAGES += wpad-mini kmod-switch kmod-diag nvram

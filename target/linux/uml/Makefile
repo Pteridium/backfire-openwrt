@@ -20,10 +20,10 @@ ARCH:=$(shell uname -m | sed \
 )
 BOARD:=uml
 BOARDNAME:=User Mode Linux
-FEATURES:=ext2 audio
+FEATURES:=ext2 audio broken
 LINUX_CONFIG:=$(CURDIR)/config/$(ARCH)
 
-LINUX_VERSION:=2.6.30.10
+LINUX_VERSION:=2.6.32.61
 
 include $(INCLUDE_DIR)/target.mk
 
