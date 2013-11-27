@@ -25,7 +25,7 @@ else
   SQUASHFS_OPTS :=  -le
 endif
 
-ifneq ($(CONFIG_LINUX_2_4)$(CONFIG_LINUX_2_6_25),)
+ifneq ($(CONFIG_LINUX_2_6_25),)
   USE_SQUASHFS3 := y
 endif
 
