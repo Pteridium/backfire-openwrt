@@ -17,8 +17,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <linux/crc32.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 #include <linux/mtd/map.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
@@ -33,8 +35,11 @@
 #include <asm/mach-bcm63xx/bcm_tag.h>
 #include <asm/mach-bcm63xx/bcm63xx_board.h>
 
+#define BCM63XX_CFE_BLOCK_SIZE	SZ_64K		/* always at least 64KiB */
+
+#define BCM63XX_EXTENDED_SIZE	0xBFC00000	/* Extended flash address */
+
 #define BUSWIDTH 2                     /* Buswidth */
-#define EXTENDED_SIZE 0xBFC00000       /* Extended flash address */
 
 #define PFX KBUILD_MODNAME ": "
 
@@ -56,18 +61,30 @@ static struct map_info bcm963xx_map = {
 
 static int parse_cfe_partitions( struct mtd_info *master, struct mtd_partition **pparts)
 {
-	int nrparts = 3, curpart = 0; /* CFE,NVRAM and global LINUX are always present. */
+	/* CFE, NVRAM and global Linux are always present */
+	int nrparts = 3, curpart = 0;
 	struct bcm_tag *buf;
 	struct mtd_partition *parts;
 	int ret;
 	size_t retlen;
-	unsigned int rootfsaddr, kerneladdr, spareaddr;
+	unsigned int rootfsaddr, kerneladdr, spareaddr, nvramaddr;
 	unsigned int rootfslen, kernellen, sparelen, totallen;
-	int namelen = 0;
-	int i, offset;
-	char *boardid;
-    char *tagversion;
-	struct squashfs_super_block sb;
+	unsigned int cfelen, nvramlen;
+	unsigned int cfe_erasesize;
+	int i;
+	u32 computed_crc;
+	bool rootfs_first = false;
+
+	if (!bcm63xx_is_cfe_present())
+		return -EINVAL;
+
+	cfe_erasesize = max_t(uint32_t, master->erasesize,
+			      BCM63XX_CFE_BLOCK_SIZE);
+
+	cfelen = cfe_erasesize;
+
+	nvramlen = cfe_erasesize;
+	nvramaddr = master->size - nvramlen;
 
 	/* Allocate memory for buffer */
 	buf = vmalloc(sizeof(struct bcm_tag));
@@ -75,94 +92,113 @@ static int parse_cfe_partitions( struct mtd_info *master, struct mtd_partition *
 		return -ENOMEM;
 
 	/* Get the tag */
-	ret = master->read(master, master->erasesize, sizeof(struct bcm_tag), &retlen, (void *)buf);
-	if (retlen != sizeof(struct bcm_tag)){
+	ret = master->read(master, master->erasesize, sizeof(struct bcm_tag),
+			&retlen, (void *)buf);
+
+	if (retlen != sizeof(struct bcm_tag)) {
 		vfree(buf);
 		return -EIO;
 	}
 
-	sscanf(buf->kernel_address, "%u", &kerneladdr);
-	sscanf(buf->kernel_length, "%u", &kernellen);
-	//sscanf(buf->total_length, "%u", &totallen);
-	//rootfslen = buf->real_rootfs_length;
-	sscanf(buf->root_length, "%u", &rootfslen);
-	tagversion = &(buf->tag_version[0]);
-	boardid = &(buf->board_id[0]);
+	computed_crc = crc32_le(IMAGETAG_CRC_START, (u8 *)buf,
+				offsetof(struct bcm_tag, header_crc));
+	if (computed_crc == buf->header_crc) {
+		char *boardid = &(buf->board_id[0]);
+		char *tagversion = &(buf->tag_version[0]);
 
-	printk(KERN_INFO PFX "CFE boot tag found with version %s and board type %s\n",tagversion, boardid);
+		sscanf(buf->flash_image_start, "%u", &rootfsaddr);
+		sscanf(buf->kernel_address, "%u", &kerneladdr);
+		sscanf(buf->kernel_length, "%u", &kernellen);
+		sscanf(buf->total_length, "%u", &totallen);
 
-	kerneladdr = kerneladdr - EXTENDED_SIZE;
-	rootfsaddr = kerneladdr + kernellen;
+		printk(KERN_INFO "CFE boot tag found with version %s and board type %s\n",
+			tagversion, boardid);
 
-	//	offset = master->erasesize + sizeof(struct bcm_tag) + kernellen;
-	offset = rootfsaddr;
-	ret = master->read(master, offset, sizeof(sb), &retlen, (void *) &sb);
-	if (ret || (retlen != sizeof(sb))) {
-	  printk(KERN_ALERT PFX "parse_cfe_partitions: error occured while reading "
-			 "from \"%s\"\n", master->name);
-	  return -EINVAL;
+		kerneladdr = kerneladdr - BCM63XX_EXTENDED_SIZE;
+		rootfsaddr = rootfsaddr - BCM63XX_EXTENDED_SIZE;
+		spareaddr = roundup(totallen, master->erasesize) + cfelen;
+
+		if (rootfsaddr < kerneladdr) {
+			/* default Broadcom layout */
+			rootfslen = kerneladdr - rootfsaddr;
+			rootfs_first = true;
+		} else {
+			/* OpenWrt layout */
+			rootfsaddr = kerneladdr + kernellen;
+			rootfslen = buf->real_rootfs_length;
+			spareaddr = rootfsaddr + rootfslen;
+		}
+	} else {
+		printk(KERN_WARNING "CFE boot tag CRC invalid (expected %08x, actual %08x)\n",
+			buf->header_crc, computed_crc);
+		kernellen = 0;
+		rootfslen = 0;
+		rootfsaddr = 0;
+		spareaddr = cfelen;
 	}
-
-	rootfslen = ( ( rootfslen % master->erasesize ) > 0 ? (((rootfslen / master->erasesize) + 1 ) * master->erasesize) : rootfslen);
-	totallen = rootfslen + kernellen + sizeof(struct bcm_tag);
-
-	spareaddr = roundup(totallen, master->erasesize) + master->erasesize;
-	sparelen = master->size - spareaddr - master->erasesize;
+	sparelen = nvramaddr - spareaddr;
 
 	/* Determine number of partitions */
-	namelen = 8;
-	if (rootfslen > 0){
+	if (rootfslen > 0)
 		nrparts++;
-		namelen =+ 6;
-	};
-	if (kernellen > 0) {
+
+	if (kernellen > 0)
 		nrparts++;
-		namelen =+ 6;
-	};
 
 	/* Ask kernel for more memory */
 	parts = kzalloc(sizeof(*parts) * nrparts + 10 * nrparts, GFP_KERNEL);
 	if (!parts) {
 		vfree(buf);
 		return -ENOMEM;
-	};
+	}
 
 	/* Start building partition list */
 	parts[curpart].name = "CFE";
 	parts[curpart].offset = 0;
-	parts[curpart].size = master->erasesize;
+	parts[curpart].size = cfelen;
 	curpart++;
 
 	if (kernellen > 0) {
-		parts[curpart].name = "kernel";
-		parts[curpart].offset = kerneladdr;
-		parts[curpart].size = kernellen;
+		int kernelpart = curpart;
+
+		if (rootfslen > 0 && rootfs_first)
+			kernelpart++;
+		parts[kernelpart].name = "kernel";
+		parts[kernelpart].offset = kerneladdr;
+		parts[kernelpart].size = kernellen;
 		curpart++;
-	};
+	}
 
 	if (rootfslen > 0) {
-		parts[curpart].name = "rootfs";
-		parts[curpart].offset = rootfsaddr;
-		parts[curpart].size = rootfslen;
-		if (sparelen > 0)
-			parts[curpart].size += sparelen;
+		int rootfspart = curpart;
+
+		if (kernellen > 0 && rootfs_first)
+			rootfspart--;
+		parts[rootfspart].name = "rootfs";
+		parts[rootfspart].offset = rootfsaddr;
+		parts[rootfspart].size = rootfslen;
+		if (sparelen > 0  && !rootfs_first)
+			parts[rootfspart].size += sparelen;
 		curpart++;
-	};
+	}
 
 	parts[curpart].name = "nvram";
-	parts[curpart].offset = master->size - master->erasesize;
-	parts[curpart].size = master->erasesize;
+	parts[curpart].offset = nvramaddr;
+	parts[curpart].size = nvramlen;
+	curpart++;
 
 	/* Global partition "linux" to make easy firmware upgrade */
-	curpart++;
 	parts[curpart].name = "linux";
-	parts[curpart].offset = parts[0].size;
-	parts[curpart].size = master->size - parts[0].size - parts[3].size;
+	parts[curpart].offset = cfelen;
+	parts[curpart].size = nvramaddr - cfelen;
 
 	for (i = 0; i < nrparts; i++)
-		printk(KERN_INFO PFX "Partition %d is %s offset %lx and length %lx\n", i, parts[i].name, (long unsigned int)(parts[i].offset), (long unsigned int)(parts[i].size));
+		printk(KERN_INFO "Partition %d is %s offset %llx and length %llx\n", i,
+			parts[i].name, parts[i].offset,	parts[i].size);
 
- 	printk(KERN_INFO PFX "Spare partition is %x offset and length %x\n", spareaddr, sparelen);
+	printk(KERN_INFO "Spare partition is offset %x and length %x\n",	spareaddr,
+		sparelen);
+
 	*pparts = parts;
 	vfree(buf);
 
@@ -212,7 +248,7 @@ static int bcm963xx_probe(struct platform_device *pdev)
 		printk(KERN_INFO PFX "assuming RedBoot bootloader\n");
 		if (bcm963xx_mtd_info->size > 0x00400000) {
 			printk(KERN_INFO PFX "Support for extended flash memory size : 0x%lx ; ONLY 64MBIT SUPPORT\n", bcm963xx_mtd_info->size);
-			bcm963xx_map.virt = (u32)(EXTENDED_SIZE);
+			bcm963xx_map.virt = (u32)(BCM63XX_EXTENDED_SIZE);
 		}
 
 #ifdef CONFIG_MTD_REDBOOT_PARTS
