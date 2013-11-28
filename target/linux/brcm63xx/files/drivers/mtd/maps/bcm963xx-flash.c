@@ -247,7 +247,7 @@ static int bcm963xx_probe(struct platform_device *pdev)
 	} else {
 		printk(KERN_INFO PFX "assuming RedBoot bootloader\n");
 		if (bcm963xx_mtd_info->size > 0x00400000) {
-			printk(KERN_INFO PFX "Support for extended flash memory size : 0x%lx ; ONLY 64MBIT SUPPORT\n", bcm963xx_mtd_info->size);
+			printk(KERN_INFO PFX "Support for extended flash memory size : 0x%llx ; ONLY 64MBIT SUPPORT\n", bcm963xx_mtd_info->size);
 			bcm963xx_map.virt = (u32)(BCM63XX_EXTENDED_SIZE);
 		}
 
