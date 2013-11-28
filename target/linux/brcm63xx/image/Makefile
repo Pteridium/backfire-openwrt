@@ -171,6 +171,15 @@ endef
 
 endif
 
+ifeq ($(CONFIG_TARGET_brcm63xx_brcm6368),y)
+
+# Comtrend VR-3025u
+define Image/Build/Profile/VR3025U
+        $(call Image/Build/CFE,$(1),96368M-1541N,6368,VR-3025u)
+endef
+
+endif
+
 define Image/Build
 	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-root.$(1) bs=128k conv=sync
 

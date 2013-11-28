@@ -284,6 +284,64 @@ static struct board_info __initdata board_HW6358GW_B = {
 #endif
 
 /*
+ * known 6368 boards
+ */
+#ifdef CONFIG_BCM63XX_CPU_6368
+static struct board_info __initdata board_VR3025u = {
+	.name			= "96368M-1541N",
+	.expected_cpu_id	= 0x6368,
+
+	.has_uart0		= 1,
+	.has_pci		= 1,
+	.has_enetsw		= 1,
+
+	.enetsw = {
+		.used_ports = {
+			[0] = {
+				.used	= 1,
+				.phy_id	= 1,
+				.name	= "port1",
+			},
+			[1] = {
+				.used	= 1,
+				.phy_id	= 2,
+				.name	= "port2",
+			},
+			[2] = {
+				.used	= 1,
+				.phy_id	= 3,
+				.name	= "port3",
+			},
+			[3] = {
+				.used	= 1,
+				.phy_id	= 4,
+				.name	= "port4",
+			},
+		},
+	},
+
+	.leds = {
+		{
+			.name			= "VR-3025u:green:power",
+			.gpio			= 22,
+			.default_trigger	= "default-on",
+		},
+	},
+
+	.buttons = {
+		{
+			.desc			= "reset",
+			.gpio			= 34,
+			.active_low		= 1,
+			.type			= EV_KEY,
+			.code			= KEY_RESTART,
+			.threshold		= 3,
+		},
+	},
+};
+#endif
+
+/*
  * all boards
  */
 static const struct board_info __initdata *bcm963xx_boards[] = {
@@ -300,6 +358,9 @@ static const struct board_info __initdata *bcm963xx_boards[] = {
 #ifdef CONFIG_BCM63XX_CPU_6358
 	&board_96358VW2,
 	&board_HW6358GW_B,
+#endif
+#ifdef CONFIG_BCM63XX_CPU_6368
+	&board_VR3025u,
 #endif
 };
 

@@ -16,6 +16,9 @@ brcm63xx_detect() {
 	HW6358GW_B)
 		board_model="Huawei HG520v"
 		;;
+	96368M-1541N)
+		board_model="Comtrend VR-3025u"
+		;;
 	*)
 		board_model="Unknown"
 		;;
