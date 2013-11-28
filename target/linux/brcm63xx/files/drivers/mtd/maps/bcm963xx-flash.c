@@ -28,8 +28,10 @@
 #include <linux/magic.h>
 #include <linux/jffs2.h>
 
-#include <bcm_tag.h>
 #include <asm/io.h>
+
+#include <asm/mach-bcm63xx/bcm_tag.h>
+#include <asm/mach-bcm63xx/bcm63xx_board.h>
 
 #define BUSWIDTH 2                     /* Buswidth */
 #define EXTENDED_SIZE 0xBFC00000       /* Extended flash address */
@@ -167,21 +169,6 @@ static int parse_cfe_partitions( struct mtd_info *master, struct mtd_partition *
 	return nrparts;
 };
 
-static int bcm963xx_detect_cfe(struct mtd_info *master)
-{
-	int idoffset = 0x4e0;
-	static char idstring[8] = "CFE1CFE1";
-	char buf[9];
-	int ret;
-	size_t retlen;
-
-	ret = master->read(master, idoffset, 8, &retlen, (void *)buf);
-	buf[retlen] = 0;
-	printk(KERN_INFO PFX "Read Signature value of %s\n", buf);
-
-	return strncmp(idstring, buf, 8);
-}
-
 static int bcm963xx_probe(struct platform_device *pdev)
 {
 	int err = 0;
@@ -212,7 +199,7 @@ static int bcm963xx_probe(struct platform_device *pdev)
 	bcm963xx_mtd_info->owner = THIS_MODULE;
 
 	/* This is mutually exclusive */
-	if (bcm963xx_detect_cfe(bcm963xx_mtd_info) == 0) {
+	if (bcm63xx_is_cfe_present()) {
 		printk(KERN_INFO PFX "CFE bootloader detected\n");
 		if (parsed_nr_parts == 0) {
 			int ret = parse_cfe_partitions(bcm963xx_mtd_info, &parsed_parts);
