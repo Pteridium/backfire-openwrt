@@ -20,7 +20,7 @@ DEFAULT_PACKAGES += kmod-switch kmod-input-gpio-buttons \
 
 define Target/Description
 	Build firmware images for Broadcom based xDSL/routers.
-	Supports: BCM6338/BCM6345/BCM6348/BCM6358/BRCM6368.
+	Supports: Broadcom 6338/6345/6348/6358/6368.
 endef
 
 $(eval $(call BuildTarget))
