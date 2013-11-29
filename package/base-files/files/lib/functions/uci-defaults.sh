@@ -184,7 +184,6 @@ ucidef_set_interface_wan() {
 set network.wan='interface'
 set network.wan.ifname='$ifname'
 set network.wan.proto='dhcp'
-set network.wan6='interface'
 EOF
 }
 
