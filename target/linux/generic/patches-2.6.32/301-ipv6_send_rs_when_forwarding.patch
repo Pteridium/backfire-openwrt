@@ -1,6 +1,6 @@
 --- a/net/ipv6/addrconf.c
 +++ b/net/ipv6/addrconf.c
-@@ -2888,7 +2888,8 @@ static void addrconf_dad_completed(struc
+@@ -2885,7 +2885,8 @@ static void addrconf_dad_completed(struc
  	   start sending router solicitations.
  	 */
  

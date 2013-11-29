@@ -99,7 +99,7 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  
  	if (sock->type == SOCK_PACKET)
  		po->prot_hook.func = packet_rcv_spkt;
-@@ -1737,6 +1741,16 @@ packet_setsockopt(struct socket *sock, i
+@@ -1739,6 +1743,16 @@ packet_setsockopt(struct socket *sock, i
  			ret = packet_mc_drop(sk, &mreq);
  		return ret;
  	}
@@ -116,7 +116,7 @@ Signed-off-by: Felix Fietkau <nbd@openwrt.org>
  
  #ifdef CONFIG_PACKET_MMAP
  	case PACKET_RX_RING:
-@@ -1882,6 +1896,13 @@ static int packet_getsockopt(struct sock
+@@ -1884,6 +1898,13 @@ static int packet_getsockopt(struct sock
  
  		data = &val;
  		break;
