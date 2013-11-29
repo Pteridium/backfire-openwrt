@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Copyright (C) 2007 OpenWrt.org
+#
+
+. /lib/brcm63xx.sh
+
+do_fixcrc() {
+	mtd fixtrx linux
+}
+
+brcm63xx_detect
+
+case "$board_name" in
+	96368M-1541N)
+		do_fixcrc
+		;;
+esac

@@ -2,6 +2,11 @@
 
 board_name=""
 board_model=""
+status_led=""
+status_led2=""
+sys_mtd_part=""
+brcm63xx_has_reset_button=""
+ifname="eth0"
 
 brcm63xx_detect() {
 	board_name=$(awk 'BEGIN{FS="[ \t:/]+"} /system type/ {print $4}' /proc/cpuinfo)
@@ -17,7 +22,9 @@ brcm63xx_detect() {
 		board_model="Huawei HG520v"
 		;;
 	96368M-1541N)
+		brcm63xx_has_reset_button="true"
 		board_model="Comtrend VR-3025u"
+		status_led="VR-3025u:green:power"
 		;;
 	*)
 		board_model="Unknown"
