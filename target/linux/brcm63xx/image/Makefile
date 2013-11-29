@@ -175,7 +175,7 @@ ifeq ($(CONFIG_TARGET_brcm63xx_brcm6368),y)
 
 # Comtrend VR-3025u
 define Image/Build/Profile/VR3025U
-        $(call Image/Build/CFE,$(1),96368M-1541N,6368,VR-3025u)
+        $(call Image/Build/CFE,$(1),96368M-1541N,6368,VR-3025u,,--pad 16)
 endef
 
 endif
