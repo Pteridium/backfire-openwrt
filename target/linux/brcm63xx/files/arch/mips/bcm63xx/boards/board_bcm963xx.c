@@ -11,9 +11,6 @@
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/platform_device.h>
-#include <linux/mtd/mtd.h>
-#include <linux/mtd/partitions.h>
-#include <linux/mtd/physmap.h>
 #include <linux/ssb/ssb.h>
 #include <linux/gpio_buttons.h>
 #include <linux/input.h>
@@ -27,6 +24,7 @@
 #include <bcm63xx_dev_pci.h>
 #include <bcm63xx_dev_enet.h>
 #include <bcm63xx_dev_dsp.h>
+#include <bcm63xx_dev_flash.h> 
 #include <bcm63xx_dev_pcmcia.h>
 #include <bcm63xx_dev_usb_ohci.h>
 #include <bcm63xx_dev_usb_ehci.h>
@@ -601,20 +599,6 @@ static int board_get_mac_address(u8 *mac)
 	return 0;
 }
 
-static struct resource mtd_resources[] = {
-	{
-		.start		= 0,	/* filled at runtime */
-		.end		= 0,	/* filled at runtime */
-		.flags		= IORESOURCE_MEM,
-	}
-};
-
-static struct platform_device mtd_dev = {
-	.name			= "bcm963xx-flash",
-	.resource		= mtd_resources,
-	.num_resources		= ARRAY_SIZE(mtd_resources),
-};
-
 static struct gpio_led_platform_data bcm63xx_led_data;
 
 static struct platform_device bcm63xx_gpio_leds = {
@@ -638,7 +622,6 @@ static struct platform_device bcm63xx_gpio_buttons_device = {
  */
 int __init board_register_devices(void)
 {
-	u32 val;
 	int led_count = 0;
 	int button_count = 0;
 
@@ -691,14 +674,7 @@ int __init board_register_devices(void)
 	if (board.num_spis)
 		spi_register_board_info(board.spis, board.num_spis);
 
-	/* read base address of boot chip select (0) */
-	val = bcm_mpi_readl(MPI_CSBASE_REG(0));
-	val &= MPI_CSBASE_BASE_MASK;
-
-	mtd_resources[0].start = val;
-	mtd_resources[0].end = 0x1FFFFFFF;
-
-	platform_device_register(&mtd_dev);
+	bcm63xx_flash_register();
 
 	/* count number of LEDs defined by this device */
 	while (led_count < ARRAY_SIZE(board.leds) && board.leds[led_count].name)
