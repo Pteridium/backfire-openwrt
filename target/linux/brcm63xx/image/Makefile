@@ -142,17 +142,22 @@ endif
 
 ifeq ($(CONFIG_TARGET_brcm63xx_brcm6348),y)
 
+# Generic 96348GW-11
+define Image/Build/Profile/96348GW_11
+	$(call Image/Build/CFE,$(1),96348GW-11,6348,96348GW-11)
+endef
+
 # Comtrend CT-5621
 define Image/Build/Profile/CT5621
-	$(call Image/Build/CFE,$(1),96348GW-11,6348,CT-5621)
+	$(call Image/Build/CFEFIXUP,$(1),96348GW-11,CT-5621,6348,CT-5621)
 endef
 # Comtrend CT-536+
 define Image/Build/Profile/CT536PLUS
-	$(call Image/Build/CFE,$(1),96348GW-11,6348,CT-536+)
+	$(call Image/Build/CFEFIXUP,$(1),96348GW-11,CT-536+,6348,CT-536+)
 endef
 # Comtrend CT-5361
 define Image/Build/Profile/CT5361
-	$(call Image/Build/CFE,$(1),96348GW-11,6348,CT-5361)
+	$(call Image/Build/CFEFIXUP,$(1),96348GW-11,CT-5361,6348,CT-5361)
 endef
 
 endif

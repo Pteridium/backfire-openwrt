@@ -60,28 +60,28 @@ static struct board_info __initdata board_96338GW = {
 
 	.leds = {
 		{
-			.name		= "adsl",
+			.name		= "96338GW:green:adsl",
 			.gpio		= 3,
 			.active_low	= 1,
 		},
 		{
-			.name		= "ses",
+			.name		= "96338GW:green:ses",
 			.gpio		= 5,
 			.active_low	= 1,
 		},
 		{
-			.name		= "ppp-fail",
+			.name		= "96338GW:green:ppp-fail",
 			.gpio		= 4,
 			.active_low	= 1,
 		},
 		{
-			.name		= "power",
+			.name		= "96338GW:green:power",
 			.gpio		= 0,
 			.active_low	= 1,
 			.default_trigger = "default-on",
 		},
 		{
-			.name		= "stop",
+			.name		= "96338GW:green:stop",
 			.gpio		= 1,
 			.active_low	= 1,
 		}
@@ -101,28 +101,28 @@ static struct board_info __initdata board_96338W = {
 
 	.leds = {
 		{
-			.name		= "adsl",
+			.name		= "96338W:green:adsl",
 			.gpio		= 3,
 			.active_low	= 1,
 		},
 		{
-			.name		= "ses",
+			.name		= "96338W:green:ses",
 			.gpio		= 5,
 			.active_low	= 1,
 		},
 		{
-			.name		= "ppp-fail",
+			.name		= "96338W:green:ppp-fail",
 			.gpio		= 4,
 			.active_low	= 1,
 		},
 		{
-			.name		= "power",
+			.name		= "96338W:green:power",
 			.gpio		= 0,
 			.active_low	= 1,
 			.default_trigger = "default-on",
 		},
 		{
-			.name		= "stop",
+			.name		= "96338W:green:stop",
 			.gpio		= 1,
 			.active_low	= 1,
 		},
@@ -171,32 +171,162 @@ static struct board_info __initdata board_96348GW_11 = {
 
 	.leds = {
 		{
-			.name		= "adsl-fail",
+			.name		= "96348GW-11:green:adsl-fail",
 			.gpio		= 2,
 			.active_low	= 1,
 		},
 		{
-			.name		= "ppp",
+			.name		= "96348GW-11:green:ppp",
 			.gpio		= 3,
 			.active_low	= 1,
 		},
 		{
-			.name		= "ppp-fail",
+			.name		= "96348GW-11:green:ppp-fail",
 			.gpio		= 4,
 			.active_low	= 1,
 		},
 		{
-			.name		= "power",
+			.name		= "96348GW-11:green:power",
 			.gpio		= 0,
 			.active_low	= 1,
 			.default_trigger = "default-on",
 		},
 		{
-			.name		= "stop",
+			.name		= "96348GW-11:green:stop",
 			.gpio		= 1,
 			.active_low	= 1,
 		},
 	},
+
+	.buttons = {
+		{
+			.desc		= "reset",
+			.gpio		= 33,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+	},
+};
+
+static struct board_info __initdata board_CT5621 = {
+	.name				= "CT-5621",
+	.expected_cpu_id		= 0x6348,
+
+	.has_uart0			= 1,
+	.has_enet1			= 1,
+	.has_pci			= 1,
+
+	.enet1 = {
+		.force_speed_100	= 1,
+		.force_duplex_full	= 1,
+	},
+
+	.has_ohci0 = 1,
+	.has_pccard = 1,
+	.has_ehci0 = 1,
+
+	.leds = {
+		{
+			.name		= "CT-5621:green:adsl-fail",
+			.gpio		= 2,
+			.active_low	= 1,
+		},
+		{
+			.name		= "CT-5621:green:power",
+			.gpio		= 0,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+	},
+
+	.buttons = {
+		{
+			.desc		= "reset",
+			.gpio		= 33,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+	},
+};
+
+static struct board_info __initdata board_CT536PLUS = {
+	.name				= "CT-536+",
+	.expected_cpu_id		= 0x6348,
+
+	.has_uart0			= 1,
+	.has_enet1			= 1,
+	.has_pci			= 1,
+
+	.enet1 = {
+		.force_speed_100	= 1,
+		.force_duplex_full	= 1,
+	},
+
+	.has_ohci0 = 1,
+	.has_pccard = 1,
+	.has_ehci0 = 1,
+
+	.leds = {
+		{
+			.name		= "CT-536+:green:adsl-fail",
+			.gpio		= 2,
+			.active_low	= 1,
+		},
+		{
+			.name		= "CT-536+:green:power",
+			.gpio		= 0,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+	},
+
+	.buttons = {
+		{
+			.desc		= "reset",
+			.gpio		= 33,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+	},
+};
+
+static struct board_info __initdata board_CT5361 = {
+	.name				= "CT-5361",
+	.expected_cpu_id		= 0x6348,
+
+	.has_uart0			= 1,
+	.has_enet1			= 1,
+	.has_pci			= 1,
+
+	.enet1 = {
+		.force_speed_100	= 1,
+		.force_duplex_full	= 1,
+	},
+
+	.has_ohci0 = 1,
+	.has_pccard = 1,
+	.has_ehci0 = 1,
+
+	.leds = {
+		{
+			.name		= "CT-5361:green:adsl-fail",
+			.gpio		= 2,
+			.active_low	= 1,
+		},
+		{
+			.name		= "CT-5361:green:power",
+			.gpio		= 0,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+	},
+
 	.buttons = {
 		{
 			.desc		= "reset",
@@ -239,22 +369,22 @@ static struct board_info __initdata board_96358VW2 = {
 
 	.leds = {
 		{
-			.name		= "adsl",
+			.name		= "DSL-2650U:green:adsl",
 			.gpio		= 22,
 			.active_low	= 1,
 		},
 		{
-			.name		= "ppp-fail",
+			.name		= "DSL-2650U:green:ppp-fail",
 			.gpio		= 23,
 		},
 		{
-			.name		= "power",
+			.name		= "DSL-2650U:green:power",
 			.gpio		= 5,
 			.active_low	= 1,
 			.default_trigger = "default-on",
 		},
 		{
-			.name		= "stop",
+			.name		= "DSL-2650U:green:stop",
 			.gpio		= 4,
 			.active_low	= 1,
 		},
@@ -320,9 +450,26 @@ static struct board_info __initdata board_VR3025u = {
 
 	.leds = {
 		{
+			.name			= "VR-3025u:green:dsl",
+			.gpio			= 2,
+			.active_low	= 1,
+		},
+		{
+			.name			= "VR-3025u:green:inet",
+			.gpio			= 5,
+		},
+		{
 			.name			= "VR-3025u:green:power",
 			.gpio			= 22,
-			.default_trigger	= "default-on",
+			.default_trigger = "default-on",
+		},
+		{
+			.name			= "VR-3025u:red:power",
+			.gpio			= 24,
+		},
+		{
+			.name			= "VR-3025u:red:inet",
+			.gpio			= 31,
 		},
 	},
 
@@ -352,6 +499,9 @@ static const struct board_info __initdata *bcm963xx_boards[] = {
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6348
 	&board_96348GW_11,
+	&board_CT5621,
+	&board_CT536PLUS,
+	&board_CT5361,
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6358
 	&board_96358VW2,

@@ -13,15 +13,19 @@ touch /etc/config/network
 ucidef_set_interface_loopback
 
 case "$board_name" in
-
-96368M-1541N)
+96338GW |\
+96338W |\
+"96368M-1541N" |\
+"CT-5621" |\
+"CT-536+" |\
+"CT-5361")
 	ucidef_set_interface_lan "eth0"
 	;;
-
+"96345GW2")
+	;;
 *)
 	ucidef_set_interfaces_lan_wan "eth1" "eth0"
 	;;
-
 esac
 
 uci commit network
