@@ -396,7 +396,13 @@ static struct board_info __initdata board_HG520v = {
 	.expected_cpu_id                = 0x6358,
 
 	.has_uart0			= 1,
+	.has_enet1			= 1,
 	.has_pci                        = 1,
+
+	.enet1 = {
+		.force_speed_100        = 1,
+		.force_duplex_full      = 1,
+	},
 
 	.has_ohci0			= 1,
 	.has_ehci0			= 1,
