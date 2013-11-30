@@ -3,7 +3,7 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
- * Copyright (C) 2010 Maxime Bizon <mbizon@freebox.fr>
+ * Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
  */
 
 #include <linux/init.h>
@@ -20,15 +20,13 @@ static int __devinit ohci_bcm63xx_start(struct usb_hcd *hcd)
 	struct ohci_hcd *ohci = hcd_to_ohci(hcd);
 	int ret;
 
-        /*
-         * port 2 can be shared with USB slave, but all boards seem to
-         * have only one host port populated, so we can hardcode it
-         */
 	ohci->num_ports = 1;
 
 	ret = ohci_init(ohci);
 	if (ret < 0)
 		return ret;
+
+	/* FIXME: autodetected port 2 is shared with USB slave */
 
 	ret = ohci_run(ohci);
 	if (ret < 0) {
@@ -63,6 +61,7 @@ static int __devinit ohci_hcd_bcm63xx_drv_probe(struct platform_device *pdev)
 	struct resource *res_mem;
 	struct usb_hcd *hcd;
 	struct ohci_hcd *ohci;
+	struct clk *clk;
 	u32 reg;
 	int ret, irq;
 
@@ -71,30 +70,40 @@ static int __devinit ohci_hcd_bcm63xx_drv_probe(struct platform_device *pdev)
 	if (!res_mem || irq < 0)
 		return -ENODEV;
 
-	if (BCMCPU_IS_6348()) {
-		struct clk *clk;
-		/* enable USB host clock */
-		clk = clk_get(&pdev->dev, "usbh");
-		if (IS_ERR(clk))
-			return -ENODEV;
+	/* enable USB host clock */
+	clk = clk_get(&pdev->dev, "usbh");
+	if (IS_ERR(clk))
+		return -ENODEV;
 
-		clk_enable(clk);
-		usb_host_clock = clk;
+	clk_enable(clk);
+	usb_host_clock = clk;
+	msleep(100);
+
+	if (BCMCPU_IS_6348())
 		bcm_rset_writel(RSET_OHCI_PRIV, 0, OHCI_PRIV_REG);
-
-	} else if (BCMCPU_IS_6358()) {
-		reg = bcm_rset_readl(RSET_USBH_PRIV, USBH_PRIV_SWAP_REG);
+	else if (BCMCPU_IS_6358()) {
+		reg = bcm_rset_readl(RSET_USBH_PRIV, USBH_PRIV_SWAP_6358_REG);
 		reg &= ~USBH_PRIV_SWAP_OHCI_ENDN_MASK;
 		reg |= USBH_PRIV_SWAP_OHCI_DATA_MASK;
-		bcm_rset_writel(RSET_USBH_PRIV, reg, USBH_PRIV_SWAP_REG);
+		bcm_rset_writel(RSET_USBH_PRIV, reg, USBH_PRIV_SWAP_6358_REG);
 		/*
 		 * The magic value comes for the original vendor BSP
 		 * and is needed for USB to work. Datasheet does not
 		 * help, so the magic value is used as-is.
 		 */
-		bcm_rset_writel(RSET_USBH_PRIV, 0x1c0020, USBH_PRIV_TEST_REG);
-	} else
-		return 0;
+		bcm_rset_writel(RSET_USBH_PRIV, 0x1c0020,
+				USBH_PRIV_TEST_6358_REG);
+
+	} else if (BCMCPU_IS_6368()) {
+		reg = bcm_rset_readl(RSET_USBH_PRIV, USBH_PRIV_SWAP_6368_REG);
+		reg &= ~USBH_PRIV_SWAP_OHCI_ENDN_MASK;
+		reg |= USBH_PRIV_SWAP_OHCI_DATA_MASK;
+		bcm_rset_writel(RSET_USBH_PRIV, reg, USBH_PRIV_SWAP_6368_REG);
+
+		reg = bcm_rset_readl(RSET_USBH_PRIV, USBH_PRIV_SETUP_6368_REG);
+		reg |= USBH_PRIV_SETUP_IOC_MASK;
+		bcm_rset_writel(RSET_USBH_PRIV, reg, USBH_PRIV_SETUP_6368_REG);
+	}
 
 	hcd = usb_create_hcd(&ohci_bcm63xx_hc_driver, &pdev->dev, "bcm63xx");
 	if (!hcd)

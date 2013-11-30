@@ -7,10 +7,13 @@
  */
 
 #include <linux/init.h>
+#include <linux/clk.h>
 #include <linux/platform_device.h>
 #include <bcm63xx_cpu.h>
 #include <bcm63xx_regs.h>
 #include <bcm63xx_io.h>
+
+static struct clk *usb_host_clock;
 
 static int ehci_bcm63xx_setup(struct usb_hcd *hcd)
 {
@@ -64,6 +67,7 @@ static int __devinit ehci_hcd_bcm63xx_drv_probe(struct platform_device *pdev)
 	struct resource *res_mem;
 	struct usb_hcd *hcd;
 	struct ehci_hcd *ehci;
+	struct clk *clk;
 	u32 reg;
 	int ret, irq;
 
@@ -72,17 +76,40 @@ static int __devinit ehci_hcd_bcm63xx_drv_probe(struct platform_device *pdev)
 	if (!res_mem || irq < 0)
 		return -ENODEV;
 
-	reg = bcm_rset_readl(RSET_USBH_PRIV, USBH_PRIV_SWAP_REG);
-	reg &= ~USBH_PRIV_SWAP_EHCI_DATA_MASK;
-	reg |= USBH_PRIV_SWAP_EHCI_ENDN_MASK;
-	bcm_rset_writel(RSET_USBH_PRIV, reg, USBH_PRIV_SWAP_REG);
+	/* enable USB host clock */
+	clk = clk_get(&pdev->dev, "usbh");
+	if (IS_ERR(clk))
+		return -ENODEV;
 
-	/*
-	 * The magic value comes for the original vendor BSP and is
-	 * needed for USB to work. Datasheet does not help, so the
-	 * magic value is used as-is.
-	 */
-	bcm_rset_writel(RSET_USBH_PRIV, 0x1c0020, USBH_PRIV_TEST_REG);
+	clk_enable(clk);
+	usb_host_clock = clk;
+	msleep(100);
+
+	if (BCMCPU_IS_6358()) {
+		reg = bcm_rset_readl(RSET_USBH_PRIV, USBH_PRIV_SWAP_6358_REG);
+		reg &= ~USBH_PRIV_SWAP_EHCI_DATA_MASK;
+		reg |= USBH_PRIV_SWAP_EHCI_ENDN_MASK;
+		bcm_rset_writel(RSET_USBH_PRIV, reg, USBH_PRIV_SWAP_6358_REG);
+
+		/*
+		 * The magic value comes for the original vendor BSP
+		 * and is needed for USB to work. Datasheet does not
+		 * help, so the magic value is used as-is.
+		 */
+		bcm_rset_writel(RSET_USBH_PRIV, 0x1c0020,
+				USBH_PRIV_TEST_6358_REG);
+
+	} else if (BCMCPU_IS_6368()) {
+
+		reg = bcm_rset_readl(RSET_USBH_PRIV, USBH_PRIV_SWAP_6368_REG);
+		reg &= ~USBH_PRIV_SWAP_EHCI_DATA_MASK;
+		reg |= USBH_PRIV_SWAP_EHCI_ENDN_MASK;
+		bcm_rset_writel(RSET_USBH_PRIV, reg, USBH_PRIV_SWAP_6368_REG);
+
+		reg = bcm_rset_readl(RSET_USBH_PRIV, USBH_PRIV_SETUP_6368_REG);
+		reg |= USBH_PRIV_SETUP_IOC_MASK;
+		bcm_rset_writel(RSET_USBH_PRIV, reg, USBH_PRIV_SETUP_6368_REG);
+	}
 
 	hcd = usb_create_hcd(&ehci_bcm63xx_hc_driver, &pdev->dev, "bcm63xx");
 	if (!hcd)
@@ -137,6 +164,10 @@ static int __devexit ehci_hcd_bcm63xx_drv_remove(struct platform_device *pdev)
 	iounmap(hcd->regs);
 	usb_put_hcd(hcd);
 	release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
+	if (usb_host_clock) {
+		clk_disable(usb_host_clock);
+		clk_put(usb_host_clock);
+	}
 	platform_set_drvdata(pdev, NULL);
 	return 0;
 }
