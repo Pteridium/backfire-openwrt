@@ -11,8 +11,8 @@ touch /etc/config/network
 ucidef_set_interface_loopback
 
 case "$board_name" in
-96338GW |\
-96338W |\
+"96338GW" |\
+"96338W" |\
 "96368M-1341N" |\
 "96368M-1541N" |\
 "CT-5621" |\
