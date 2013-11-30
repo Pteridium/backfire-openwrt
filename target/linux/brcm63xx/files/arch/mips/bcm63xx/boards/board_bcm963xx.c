@@ -24,7 +24,7 @@
 #include <bcm63xx_dev_pci.h>
 #include <bcm63xx_dev_enet.h>
 #include <bcm63xx_dev_dsp.h>
-#include <bcm63xx_dev_flash.h> 
+#include <bcm63xx_dev_flash.h>
 #include <bcm63xx_dev_pcmcia.h>
 #include <bcm63xx_dev_usb_ohci.h>
 #include <bcm63xx_dev_usb_ehci.h>
@@ -165,9 +165,9 @@ static struct board_info __initdata board_96348GW_11 = {
 		.force_duplex_full	= 1,
 	},
 
-	.has_ohci0 = 1,
-	.has_pccard = 1,
-	.has_ehci0 = 1,
+	.has_ohci0			= 1,
+	.has_pccard			= 1,
+	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -223,9 +223,9 @@ static struct board_info __initdata board_CT5621 = {
 		.force_duplex_full	= 1,
 	},
 
-	.has_ohci0 = 1,
-	.has_pccard = 1,
-	.has_ehci0 = 1,
+	.has_ohci0			= 1,
+	.has_pccard			= 1,
+	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -266,9 +266,9 @@ static struct board_info __initdata board_CT536PLUS = {
 		.force_duplex_full	= 1,
 	},
 
-	.has_ohci0 = 1,
-	.has_pccard = 1,
-	.has_ehci0 = 1,
+	.has_ohci0			= 1,
+	.has_pccard			= 1,
+	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -309,9 +309,9 @@ static struct board_info __initdata board_CT5361 = {
 		.force_duplex_full	= 1,
 	},
 
-	.has_ohci0 = 1,
-	.has_pccard = 1,
-	.has_ehci0 = 1,
+	.has_ohci0			= 1,
+	.has_pccard			= 1,
+	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -363,9 +363,9 @@ static struct board_info __initdata board_DSL2650U = {
 		.force_duplex_full	= 1,
 	},
 
-	.has_ohci0 = 1,
-	.has_pccard = 1,
-	.has_ehci0 = 1,
+	.has_ohci0			= 1,
+	.has_pccard			= 1,
+	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -391,15 +391,15 @@ static struct board_info __initdata board_DSL2650U = {
 	},
 };
 
-static struct board_info __initdata board_HW6358GW_B = {
+static struct board_info __initdata board_HG520v = {
 	.name                           = "HW6358GW_B",
 	.expected_cpu_id                = 0x6358,
 
 	.has_uart0			= 1,
 	.has_pci                        = 1,
 
-	.has_ohci0 = 1,
-	.has_ehci0 = 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -416,12 +416,12 @@ static struct board_info __initdata board_HW6358GW_B = {
  */
 #ifdef CONFIG_BCM63XX_CPU_6368
 static struct board_info __initdata board_VR3025u = {
-	.name			= "96368M-1541N",
-	.expected_cpu_id	= 0x6368,
+	.name				= "96368M-1541N",
+	.expected_cpu_id		= 0x6368,
 
-	.has_uart0		= 1,
-	.has_pci		= 1,
-	.has_enetsw		= 1,
+	.has_uart0			= 1,
+	.has_pci			= 1,
+	.has_enetsw			= 1,
 
 	.enetsw = {
 		.used_ports = {
@@ -450,48 +450,48 @@ static struct board_info __initdata board_VR3025u = {
 
 	.leds = {
 		{
-			.name			= "VR-3025u:green:dsl",
-			.gpio			= 2,
+			.name		= "VR-3025u:green:dsl",
+			.gpio		= 2,
 			.active_low	= 1,
 		},
 		{
-			.name			= "VR-3025u:green:inet",
-			.gpio			= 5,
+			.name		= "VR-3025u:green:inet",
+			.gpio		= 5,
 		},
 		{
-			.name			= "VR-3025u:green:power",
-			.gpio			= 22,
+			.name		= "VR-3025u:green:power",
+			.gpio		= 22,
 			.default_trigger = "default-on",
 		},
 		{
-			.name			= "VR-3025u:red:power",
-			.gpio			= 24,
+			.name		= "VR-3025u:red:power",
+			.gpio		= 24,
 		},
 		{
-			.name			= "VR-3025u:red:inet",
-			.gpio			= 31,
+			.name		= "VR-3025u:red:inet",
+			.gpio		= 31,
 		},
 	},
 
 	.buttons = {
 		{
-			.desc			= "reset",
-			.gpio			= 34,
-			.active_low		= 1,
-			.type			= EV_KEY,
-			.code			= KEY_RESTART,
-			.threshold		= 3,
+			.desc		= "reset",
+			.gpio		= 34,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
 		},
 	},
 };
 
 static struct board_info __initdata board_VR3025un = {
-	.name			= "96368M-1341N",
-	.expected_cpu_id	= 0x6368,
+	.name				= "96368M-1341N",
+	.expected_cpu_id		= 0x6368,
 
-	.has_uart0		= 1,
-	.has_pci		= 1,
-	.has_enetsw		= 1,
+	.has_uart0			= 1,
+	.has_pci			= 1,
+	.has_enetsw			= 1,
 
 	.enetsw = {
 		.used_ports = {
@@ -520,37 +520,37 @@ static struct board_info __initdata board_VR3025un = {
 
 	.leds = {
 		{
-			.name			= "VR-3025un:green:dsl",
-			.gpio			= 2,
+			.name		= "VR-3025un:green:dsl",
+			.gpio		= 2,
 			.active_low	= 1,
 		},
 		{
-			.name			= "VR-3025un:green:inet",
-			.gpio			= 5,
+			.name		= "VR-3025un:green:inet",
+			.gpio		= 5,
 		},
 		{
-			.name			= "VR-3025un:green:power",
-			.gpio			= 22,
+			.name		= "VR-3025un:green:power",
+			.gpio		= 22,
 			.default_trigger = "default-on",
 		},
 		{
-			.name			= "VR-3025un:red:power",
-			.gpio			= 24,
+			.name		= "VR-3025un:red:power",
+			.gpio		= 24,
 		},
 		{
-			.name			= "VR-3025un:red:inet",
-			.gpio			= 31,
+			.name		= "VR-3025un:red:inet",
+			.gpio		= 31,
 		},
 	},
 
 	.buttons = {
 		{
-			.desc			= "reset",
-			.gpio			= 34,
-			.active_low		= 1,
-			.type			= EV_KEY,
-			.code			= KEY_RESTART,
-			.threshold		= 3,
+			.desc		= "reset",
+			.gpio		= 34,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
 		},
 	},
 };
@@ -575,7 +575,7 @@ static const struct board_info __initdata *bcm963xx_boards[] = {
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6358
 	&board_DSL2650U,
-	&board_HW6358GW_B,
+	&board_HG520v,
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6368
 	&board_VR3025u,
