@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (C) 2013 OpenWrt.org
 
 port_net_echo() {
 	[ -n "$pi_ifname" ] && grep -q "$pi_ifname" /proc/net/dev && {
@@ -23,5 +24,3 @@ preinit_net_echo() {
 
 	port_net_echo $1
 }
-
-

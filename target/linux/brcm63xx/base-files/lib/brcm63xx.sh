@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (C) 2013 OpenWrt.org
 
 board_name=""
 board_model=""
@@ -27,6 +28,10 @@ brcm63xx_detect() {
 	"96358VW2")
 		board_model="D-Link DSL-2650U"
 		status_led="DSL-2650U:green:power"
+		;;
+	"96368M-1341N")
+		board_model="Comtrend VR-3025un"
+		status_led="VR-3025un:green:power"
 		;;
 	"96368M-1541N")
 		board_model="Comtrend VR-3025u"

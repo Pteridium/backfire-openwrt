@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (C) 2013 OpenWrt.org
 
 do_brcm63xx() {
 	. /lib/brcm63xx.sh

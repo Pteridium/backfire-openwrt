@@ -484,6 +484,76 @@ static struct board_info __initdata board_VR3025u = {
 		},
 	},
 };
+
+static struct board_info __initdata board_VR3025un = {
+	.name			= "96368M-1341N",
+	.expected_cpu_id	= 0x6368,
+
+	.has_uart0		= 1,
+	.has_pci		= 1,
+	.has_enetsw		= 1,
+
+	.enetsw = {
+		.used_ports = {
+			[0] = {
+				.used	= 1,
+				.phy_id	= 1,
+				.name	= "port1",
+			},
+			[1] = {
+				.used	= 1,
+				.phy_id	= 2,
+				.name	= "port2",
+			},
+			[2] = {
+				.used	= 1,
+				.phy_id	= 3,
+				.name	= "port3",
+			},
+			[3] = {
+				.used	= 1,
+				.phy_id	= 4,
+				.name	= "port4",
+			},
+		},
+	},
+
+	.leds = {
+		{
+			.name			= "VR-3025un:green:dsl",
+			.gpio			= 2,
+			.active_low	= 1,
+		},
+		{
+			.name			= "VR-3025un:green:inet",
+			.gpio			= 5,
+		},
+		{
+			.name			= "VR-3025un:green:power",
+			.gpio			= 22,
+			.default_trigger = "default-on",
+		},
+		{
+			.name			= "VR-3025un:red:power",
+			.gpio			= 24,
+		},
+		{
+			.name			= "VR-3025un:red:inet",
+			.gpio			= 31,
+		},
+	},
+
+	.buttons = {
+		{
+			.desc			= "reset",
+			.gpio			= 34,
+			.active_low		= 1,
+			.type			= EV_KEY,
+			.code			= KEY_RESTART,
+			.threshold		= 3,
+		},
+	},
+};
 #endif
 
 /*
@@ -509,6 +579,7 @@ static const struct board_info __initdata *bcm963xx_boards[] = {
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6368
 	&board_VR3025u,
+	&board_VR3025un,
 #endif
 };
 

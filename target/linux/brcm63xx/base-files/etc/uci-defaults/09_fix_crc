@@ -1,7 +1,5 @@
 #!/bin/sh
-#
-# Copyright (C) 2007 OpenWrt.org
-#
+# Copyright (C) 2013 OpenWrt.org
 
 . /lib/brcm63xx.sh
 
@@ -12,6 +10,7 @@ do_fixcrc() {
 brcm63xx_detect
 
 case "$board_name" in
+	96368M-1341N |\
 	96368M-1541N)
 		do_fixcrc
 		;;
