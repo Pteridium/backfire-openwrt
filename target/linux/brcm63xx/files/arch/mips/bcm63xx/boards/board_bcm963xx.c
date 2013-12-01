@@ -414,6 +414,17 @@ static struct board_info __initdata board_HG520v = {
 			.active_low	= 1,
 		},
 	},
+
+	.buttons = {
+		{
+			.desc		= "reset",
+			.gpio		= 37,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+	},
 };
 #endif
 
