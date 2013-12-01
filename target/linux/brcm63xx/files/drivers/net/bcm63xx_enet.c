@@ -261,7 +261,6 @@ static int bcm_enet_refill_rx(struct net_device *dev)
 			if (!skb)
 				break;
 			priv->rx_skb[desc_idx] = skb;
-
 			p = dma_map_single(&priv->pdev->dev, skb->data,
 					   priv->rx_skb_size,
 					   DMA_FROM_DEVICE);
@@ -998,9 +997,9 @@ static int bcm_enet_open(struct net_device *dev)
 	enet_writel(priv, priv->hw_mtu, ENET_TXMAXLEN_REG);
 
 	/* set dma maximum burst len */
-	enet_dmac_writel(priv, BCMENET_DMA_MAXBURST,
+	enet_dmac_writel(priv, priv->dma_maxburst,
 			 ENETDMAC_MAXBURST_REG(priv->rx_chan));
-	enet_dmac_writel(priv, BCMENET_DMA_MAXBURST,
+	enet_dmac_writel(priv, priv->dma_maxburst,
 			 ENETDMAC_MAXBURST_REG(priv->tx_chan));
 
 	/* set correct transmit fifo watermark */
@@ -1596,7 +1595,7 @@ static int compute_hw_mtu(struct bcm_enet_priv *priv, int mtu)
 	 * it's appended
 	 */
 	priv->rx_skb_size = ALIGN(actual_mtu + ETH_FCS_LEN,
-				  BCMENET_DMA_MAXBURST * 4);
+				  priv->dma_maxburst * 4);
 	return 0;
 }
 
@@ -1703,6 +1702,8 @@ static int __devinit bcm_enet_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	priv = netdev_priv(dev);
 
+	priv->dma_maxburst = bcm_enet_is_sw(priv) ?
+					BCMENETSW_DMA_MAXBURST : BCMENET_DMA_MAXBURST; 
 	ret = compute_hw_mtu(priv, dev->mtu);
 	if (ret)
 		goto out;
@@ -2266,9 +2267,9 @@ static int bcm_enetsw_open(struct net_device *dev)
 	enet_dmas_writel(priv, 0, ENETDMAS_SRAM4_REG(priv->tx_chan));
 
 	/* set dma maximum burst len */
-	enet_dmac_writel(priv, BCMENET_DMA_MAXBURST,
+	enet_dmac_writel(priv, priv->dma_maxburst,
 			 ENETDMAC_MAXBURST_REG(priv->rx_chan));
-	enet_dmac_writel(priv, BCMENET_DMA_MAXBURST,
+	enet_dmac_writel(priv, priv->dma_maxburst,
 			 ENETDMAC_MAXBURST_REG(priv->tx_chan));
 
 	/* set flow control low/high threshold to 1/3 / 2/3 */
@@ -2730,6 +2731,7 @@ static int __devinit bcm_enetsw_probe(struct platform_device *pdev)
 	priv->irq_tx = irq_tx;
 	priv->rx_ring_size = BCMENET_DEF_RX_DESC;
 	priv->tx_ring_size = BCMENET_DEF_TX_DESC;
+	priv->dma_maxburst = BCMENETSW_DMA_MAXBURST;
 
 	pd = pdev->dev.platform_data;
 	if (pd) {
