@@ -4,6 +4,7 @@
 board_name=""
 board_model=""
 status_led=""
+brcm63xx_has_reset_button=""
 ifname="eth0"
 
 brcm63xx_detect() {
@@ -24,6 +25,7 @@ brcm63xx_detect() {
 	"96348GW-11")
 		board_model="Generic 96348GW-11"
 		status_led="96348GW-11:green:power"
+		brcm63xx_has_reset_button="true"
 		;;
 	"96358VW2")
 		board_model="D-Link DSL-2650U"
@@ -32,22 +34,27 @@ brcm63xx_detect() {
 	"96368M-1341N")
 		board_model="Comtrend VR-3025un"
 		status_led="VR-3025un:green:power"
+		brcm63xx_has_reset_button="true"
 		;;
 	"96368M-1541N")
 		board_model="Comtrend VR-3025u"
 		status_led="VR-3025u:green:power"
+		brcm63xx_has_reset_button="true"
 		;;
 	"CT-5621")
 		board_model="Comtrend 5621"
 		status_led="CT-5621:green:power"
+		brcm63xx_has_reset_button="true"
 		;;
 	"CT-536+")
 		board_model="Comtrend 536+"
 		status_led="CT-536+:green:power"
+		brcm63xx_has_reset_button="true"
 		;;
 	"CT-5361")
 		board_model="Comtrend 5361"
 		status_led="CT-5361:green:power"
+		brcm63xx_has_reset_button="true"
 		;;
 	"HW6358GW_B")
 		board_model="Huawei HG520v"
