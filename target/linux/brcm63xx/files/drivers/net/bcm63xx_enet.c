@@ -2217,6 +2217,7 @@ static int bcm_enetsw_open(struct net_device *dev)
 		enetsw_writeb(priv, ENETSW_PTCTRL_RXDIS_MASK |
 			      ENETSW_PTCTRL_TXDIS_MASK,
 			      ENETSW_PTCTRL_REG(i));
+		priv->sw_port_link[i] = 0;
 	}
 
 	/* reset mib */
