@@ -60,7 +60,7 @@ static struct board_info __initdata board_96338GW = {
 
 	.leds = {
 		{
-			.name		= "96338GW:green:adsl",
+			.name		= "96338GW:green:ppp",
 			.gpio		= 3,
 			.active_low	= 1,
 		},
@@ -101,7 +101,7 @@ static struct board_info __initdata board_96338W = {
 
 	.leds = {
 		{
-			.name		= "96338W:green:adsl",
+			.name		= "96338W:green:ppp",
 			.gpio		= 3,
 			.active_low	= 1,
 		},
@@ -171,17 +171,17 @@ static struct board_info __initdata board_96348GW_11 = {
 
 	.leds = {
 		{
-			.name		= "96348GW-11:green:adsl-fail",
+			.name		= "96348GW-11:green:ppp-fail",
 			.gpio		= 2,
 			.active_low	= 1,
 		},
 		{
-			.name		= "96348GW-11:green:ppp",
+			.name		= "96348GW-11:green:wan",
 			.gpio		= 3,
 			.active_low	= 1,
 		},
 		{
-			.name		= "96348GW-11:green:ppp-fail",
+			.name		= "96348GW-11:green:wan-fail",
 			.gpio		= 4,
 			.active_low	= 1,
 		},
@@ -229,7 +229,7 @@ static struct board_info __initdata board_CT5621 = {
 
 	.leds = {
 		{
-			.name		= "CT-5621:green:adsl-fail",
+			.name		= "CT-5621:green:ppp-fail",
 			.gpio		= 2,
 			.active_low	= 1,
 		},
@@ -272,7 +272,7 @@ static struct board_info __initdata board_CT536PLUS = {
 
 	.leds = {
 		{
-			.name		= "CT-536+:green:adsl-fail",
+			.name		= "CT-536+:green:ppp-fail",
 			.gpio		= 2,
 			.active_low	= 1,
 		},
@@ -315,7 +315,7 @@ static struct board_info __initdata board_CT5361 = {
 
 	.leds = {
 		{
-			.name		= "CT-5361:green:adsl-fail",
+			.name		= "CT-5361:green:ppp-fail",
 			.gpio		= 2,
 			.active_low	= 1,
 		},
@@ -369,7 +369,7 @@ static struct board_info __initdata board_DSL2650U = {
 
 	.leds = {
 		{
-			.name		= "DSL-2650U:green:adsl",
+			.name		= "DSL-2650U:green:ppp",
 			.gpio		= 22,
 			.active_low	= 1,
 		},
@@ -409,7 +409,7 @@ static struct board_info __initdata board_HG520v = {
 
 	.leds = {
 		{
-			.name		= "HG520v:green:net",
+			.name		= "HG520v:green:ppp",
 			.gpio		= 32,
 			.active_low	= 1,
 		},
@@ -458,22 +458,22 @@ static struct board_info __initdata board_HG553 = {
 			.active_low	= 1,
 		},
 		{
-			.name		= "HG553:red:internetkey",
+			.name		= "HG553:red:usb",
 			.gpio		= 12,
 			.active_low	= 1,
 		},
 		{
-			.name		= "HG553:blue:internetkey",
+			.name		= "HG553:blue:usb",
 			.gpio		= 13,
 			.active_low	= 1,
 		},
 		{
-			.name		= "HG553:red:adsl",
+			.name		= "HG553:red:ppp",
 			.gpio		= 22,
 			.active_low	= 1,
 		},
 		{
-			.name		= "HG553:blue:adsl",
+			.name		= "HG553:blue:ppp",
 			.gpio		= 23,
 			.active_low	= 1,
 		},
@@ -554,12 +554,12 @@ static struct board_info __initdata board_VR3025u = {
 
 	.leds = {
 		{
-			.name		= "VR-3025u:green:dsl",
+			.name		= "VR-3025u:green:ppp",
 			.gpio		= 2,
 			.active_low	= 1,
 		},
 		{
-			.name		= "VR-3025u:green:inet",
+			.name		= "VR-3025u:green:wan",
 			.gpio		= 5,
 		},
 		{
@@ -572,7 +572,7 @@ static struct board_info __initdata board_VR3025u = {
 			.gpio		= 24,
 		},
 		{
-			.name		= "VR-3025u:red:inet",
+			.name		= "VR-3025u:red:wan",
 			.gpio		= 31,
 		},
 	},
@@ -624,12 +624,12 @@ static struct board_info __initdata board_VR3025un = {
 
 	.leds = {
 		{
-			.name		= "VR-3025un:green:dsl",
+			.name		= "VR-3025un:green:ppp",
 			.gpio		= 2,
 			.active_low	= 1,
 		},
 		{
-			.name		= "VR-3025un:green:inet",
+			.name		= "VR-3025un:green:wan",
 			.gpio		= 5,
 		},
 		{
@@ -642,7 +642,7 @@ static struct board_info __initdata board_VR3025un = {
 			.gpio		= 24,
 		},
 		{
-			.name		= "VR-3025un:red:inet",
+			.name		= "VR-3025un:red:wan",
 			.gpio		= 31,
 		},
 	},
