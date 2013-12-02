@@ -426,6 +426,93 @@ static struct board_info __initdata board_HG520v = {
 		},
 	},
 };
+
+static struct board_info __initdata board_HG553 = {
+	.name                           = "HW553",
+	.expected_cpu_id                = 0x6358,
+
+	.has_uart0			= 1,
+	.has_enet1                      = 1,
+	.has_pci                        = 1,
+
+	.enet1 = {
+		.has_phy		= 1,
+		.phy_id			= 0,
+		.force_speed_100        = 1,
+		.force_duplex_full      = 1,
+	},
+
+	.has_ohci0 = 1,
+	.has_ehci0 = 1,
+
+	.leds = {
+		{
+			.name		= "HG553:blue:power",
+			.gpio		= 4,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+		{
+			.name		= "HG553:red:power",
+			.gpio		= 5,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG553:red:internetkey",
+			.gpio		= 12,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG553:blue:internetkey",
+			.gpio		= 13,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG553:red:adsl",
+			.gpio		= 22,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG553:blue:adsl",
+			.gpio		= 23,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG553:red:wifi",
+			.gpio		= 25,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG553:red:lan",
+			.gpio		= 34,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG553:blue:lan",
+			.gpio		= 35,
+			.active_low	= 1,
+		},
+	},
+
+	.buttons = {
+		{
+			.desc		= "wps",
+			.gpio		= 9,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_WPS_BUTTON,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "reset",
+			.gpio		= 37,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+	},
+};
 #endif
 
 /*
@@ -593,6 +680,7 @@ static const struct board_info __initdata *bcm963xx_boards[] = {
 #ifdef CONFIG_BCM63XX_CPU_6358
 	&board_DSL2650U,
 	&board_HG520v,
+	&board_HG553,
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6368
 	&board_VR3025u,

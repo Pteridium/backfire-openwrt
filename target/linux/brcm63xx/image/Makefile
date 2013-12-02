@@ -51,6 +51,15 @@ define Image/Build/CFEFIXUP
 		$(7) $(8) $(9) $(10)
 endef
 
+define Image/Build/CFEHW553
+	# Generate the tagged image
+	$(STAGING_DIR_HOST)/bin/imagetag -i $(KDIR)/vmlinux.lzma.cfe -f $(KDIR)/root.$(1) \
+		--output $(BIN_DIR)/openwrt-$(5)-$(1)-cfe.bin \
+		--boardid $(2) --chipid $(3) --entry $(LOADADDR) \
+		--load-addr $(LOADADDR) --tag-version 7 \
+		--block-size 0x20000 --image-offset $(4)
+endef
+
 define Image/Build/CFEAGPF
 	# Generate the tagged image
 	$(STAGING_DIR_HOST)/bin/imagetag -i $(KDIR)/vmlinux.lzma.cfe -f $(KDIR)/root.$(1) \
@@ -172,6 +181,10 @@ endef
 # Huawei HG520v
 define Image/Build/Profile/HG520V
 	$(call Image/Build/CFE,$(1),HW6358GW_B,6358,HG520v)
+endef
+# Huawei HG553
+define Image/Build/Profile/HG553
+	$(call Image/Build/CFEHW553,$(1),HW553,6358,0x20000,HG553)
 endef
 
 endif

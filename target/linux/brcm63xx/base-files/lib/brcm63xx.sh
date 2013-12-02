@@ -56,6 +56,11 @@ brcm63xx_detect() {
 		status_led="CT-5361:green:power"
 		brcm63xx_has_reset_button="true"
 		;;
+	"HW553")
+		board_model="Huawei HG553"
+		status_led="HG553:blue:power"
+		brcm63xx_has_reset_button="true"
+		;;
 	"HW6358GW_B")
 		board_model="Huawei HG520v"
 		status_led="HG520v:green:net"
