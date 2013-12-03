@@ -1,0 +1,26 @@
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -67,6 +67,13 @@ config SPI_BCM63XX
+ 	help
+ 	  This is the SPI controller master driver for Broadcom BCM63xx SoC.
+ 
++config SPI_BCM63XX_HSSPI
++	tristate "Broadcom BCM63XX HS SPI controller driver"
++	depends on BCM63XX
++	help
++	  This enables support for the High Speed SPI controller present on
++	  newer Broadcom BCM63XX SoCs.
++
+ config SPI_BFIN
+ 	tristate "SPI controller driver for ADI Blackfin5xx"
+ 	depends on BLACKFIN
+--- a/drivers/spi/Makefile
++++ b/drivers/spi/Makefile
+@@ -49,6 +49,7 @@ obj-$(CONFIG_SPI_SH_MSIOF)		+= spi_sh_ms
+ obj-$(CONFIG_SPI_STMP3XXX)		+= spi_stmp.o
+ obj-$(CONFIG_SPI_NUC900)		+= spi_nuc900.o
+ obj-$(CONFIG_SPI_BCM63XX)		+= bcm63xx_spi.o
++obj-$(SPI_BCM63XX_HSSPI)		+= bcm63xx_hsspi.o
+ 
+ # special build for s3c24xx spi driver with fiq support
+ spi_s3c24xx_hw-y			:= spi_s3c24xx.o

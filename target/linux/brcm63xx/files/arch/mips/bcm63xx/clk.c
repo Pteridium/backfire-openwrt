@@ -210,6 +210,25 @@ static struct clk clk_spi = {
 };
 
 /*
+ * HSSPI clock
+ */
+static void hsspi_set(struct clk *clk, int enable)
+{
+	u32 mask;
+
+	if (BCMCPU_IS_6328())
+		mask = CKCTL_6328_HSSPI_EN;
+	else
+		return;
+
+	bcm_hwclock_set(mask, enable);
+}
+
+static struct clk clk_hsspi = {
+	.set	= hsspi_set,
+};
+
+/*
  * XTM clock
  */
 static void xtm_set(struct clk *clk, int enable)
@@ -302,6 +321,8 @@ struct clk *clk_get(struct device *dev, const char *id)
 		return &clk_usbh;
 	if (!strcmp(id, "spi"))
 		return &clk_spi;
+	if (!strcmp(id, "hsspi"))
+		return &clk_hsspi;
 	if (!strcmp(id, "xtm"))
 		return &clk_xtm;
 	if (!strcmp(id, "periph"))
