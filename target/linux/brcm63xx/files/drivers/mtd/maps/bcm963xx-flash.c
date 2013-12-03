@@ -32,6 +32,7 @@
 
 #include <asm/io.h>
 
+#include <asm/mach-bcm63xx/bcm63xx_nvram.h>
 #include <asm/mach-bcm63xx/bcm_tag.h>
 #include <asm/mach-bcm63xx/bcm63xx_board.h>
 
@@ -83,7 +84,8 @@ static int parse_cfe_partitions( struct mtd_info *master, struct mtd_partition *
 
 	cfelen = cfe_erasesize;
 
-	nvramlen = cfe_erasesize;
+	nvramlen = bcm63xx_nvram_get_psi_size() * SZ_1K;
+	nvramlen = roundup(nvramlen, cfe_erasesize); 
 	nvramaddr = master->size - nvramlen;
 
 	/* Allocate memory for buffer */
