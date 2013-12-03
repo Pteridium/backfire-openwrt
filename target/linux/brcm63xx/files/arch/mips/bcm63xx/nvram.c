@@ -9,7 +9,7 @@
 #define pr_fmt(fmt) "bcm63xx_nvram: " fmt
 
 #include <linux/init.h>
-#include <linux/export.h>
+#include <linux/module.h>
 #include <linux/kernel.h>
 
 #include <bcm63xx_nvram.h>
