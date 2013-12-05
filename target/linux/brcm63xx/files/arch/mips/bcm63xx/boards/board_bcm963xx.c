@@ -658,6 +658,82 @@ static struct board_info __initdata board_VR3025un = {
 		},
 	},
 };
+
+static struct board_info __initdata board_WAP5813n = {
+	.name				= "96369R-1231N",
+	.expected_cpu_id		= 0x6368,
+
+	.has_uart0			= 1,
+	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
+
+	.has_enetsw			= 1,
+	.enetsw = {
+		.used_ports = {
+			[4] = {
+				.used			= 1,
+				.phy_id			= 0xff,
+				.bypass_link		= 1,
+				.force_speed		= 1000,
+				.force_duplex_full	= 1,
+				.name			= "RGMII",
+			},
+		},
+	},
+
+	.leds = {
+		{
+			.name		= "WAP-5813n:green:power",
+			.gpio		= 22,
+			.default_trigger = "default-on",
+		},
+		{
+			.name		= "WAP-5813n:red:power",
+			.gpio		= 24,
+		},
+		{
+			.name		= "WAP-5813n:green:inet",
+			.gpio		= 5,
+		},
+		{
+			.name		= "WAP-5813n:red:inet",
+			.gpio		= 31,
+		},
+		{
+			.name		= "WAP-5813n:green:wps",
+			.gpio		= 23,
+			.active_low	= 1,
+		},
+	},
+
+	.buttons = {
+		{
+			.desc		= "wlan",
+			.gpio		= 32,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_WLAN,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "reset",
+			.gpio		= 34,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "wps",
+			.gpio		= 35,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_WPS_BUTTON,
+			.threshold	= 3,
+		},
+	},
+};
 #endif
 
 /*
@@ -685,6 +761,7 @@ static const struct board_info __initdata *bcm963xx_boards[] = {
 #ifdef CONFIG_BCM63XX_CPU_6368
 	&board_VR3025u,
 	&board_VR3025un,
+	&board_WAP5813n,
 #endif
 };
 

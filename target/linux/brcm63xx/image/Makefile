@@ -199,6 +199,10 @@ endef
 define Image/Build/Profile/VR3025UN
         $(call Image/Build/CFE,$(1),96368M-1341N,6368,VR-3025un,,--pad 4)
 endef
+# Comtrend WAP-5813un
+define Image/Build/Profile/WAP5813N
+        $(call Image/Build/CFE,$(1),96369R-1231N,6368,WAP-5813n,,--pad 4)
+endef
 
 endif
 

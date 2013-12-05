@@ -41,6 +41,11 @@ brcm63xx_detect() {
 		status_led="VR-3025u:green:power"
 		brcm63xx_has_reset_button="true"
 		;;
+	"96369R-1231N")
+		board_model="Comtrend WAP-5813n"
+		status_led="WAP-5813n:green:power"
+		brcm63xx_has_reset_button="true"
+		;;
 	"CT-5621")
 		board_model="Comtrend 5621"
 		status_led="CT-5621:green:power"

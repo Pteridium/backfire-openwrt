@@ -272,7 +272,7 @@ void __init bcm63xx_cpu_init(void)
 			bcm63xx_irqs = bcm6358_irqs;
 		} else {
 			/* all newer chips have the same chip id location */
-			u16 chip_id = bcm_readw(BCM_6368_PERF_BASE);
+			u16 chip_id = bcm_readw(BCM_6368_PERF_BASE) & ~1;
 
 			switch (chip_id) {
 			case BCM6328_CPU_ID:
@@ -305,6 +305,9 @@ void __init bcm63xx_cpu_init(void)
 	tmp = bcm_perf_readl(PERF_REV_REG);
 	bcm63xx_cpu_id = (tmp & REV_CHIPID_MASK) >> REV_CHIPID_SHIFT;
 	bcm63xx_cpu_rev = (tmp & REV_REVID_MASK) >> REV_REVID_SHIFT;
+
+	if (bcm63xx_cpu_id != BCM6345_CPU_ID)
+		bcm63xx_cpu_id &= ~1;
 
 	if (bcm63xx_cpu_id != expected_cpu_id)
 		panic("bcm63xx CPU id mismatch");
