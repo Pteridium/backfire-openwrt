@@ -10,6 +10,7 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/clk.h>
+#include <linux/io.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/delay.h>
@@ -348,7 +349,15 @@ static int __devinit bcm63xx_hsspi_probe(struct platform_device *pdev)
 	bs->pdev = pdev;
 	bs->clk = clk;
 
-	bs->regs = devm_request_and_ioremap(dev, res_mem);
+	if (!devm_request_mem_region(&pdev->dev, res_mem->start,
+					resource_size(res_mem), PFX)) {
+		dev_err(dev, "iomem request failed\n");
+		ret = -ENXIO;
+		goto out_put_master;
+	}
+
+	bs->regs = devm_ioremap_nocache(&pdev->dev, res_mem->start,
+							resource_size(res_mem));
 	if (!bs->regs) {
 		dev_err(dev, "unable to ioremap regs\n");
 		ret = -ENOMEM;
