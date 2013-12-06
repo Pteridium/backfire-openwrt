@@ -10,6 +10,7 @@ do_fixcrc() {
 brcm63xx_detect
 
 case "$board_name" in
+	96328A-1241N |\
 	96368M-1341N |\
 	96368M-1541N |\
 	96369R-1231N)

@@ -42,6 +42,77 @@
 static struct board_info board;
 
 /*
+ * known 6328 boards
+ */
+#ifdef CONFIG_BCM63XX_CPU_6328
+static struct board_info __initdata board_AR5381u = {
+	.name                           = "96328A-1241N",
+	.expected_cpu_id                = 0x6328,
+
+	.has_uart0		= 1,
+	.has_pci		= 1,
+	.has_ohci0		= 1,
+	.has_ehci0		= 1,
+
+	.has_enetsw		= 1,
+	.enetsw = {
+		.used_ports = {
+			[0] = {
+				.used		= 1,
+				.phy_id		= 1,
+				.name		= "Port 1",
+			},
+			[1] = {
+				.used		= 1,
+				.phy_id		= 2,
+				.name		= "Port 2",
+			},
+			[2] = {
+				.used		= 1,
+				.phy_id		= 3,
+				.name		= "Port 3",
+			},
+			[3] = {
+				.used		= 1,
+				.phy_id		= 4,
+				.name		= "Port 4",
+			},
+		},
+	},
+
+	.leds = {
+		{
+			.name			= "96328A-1241N:green:power",
+			.gpio			= 4,
+			.active_low		= 1,
+			.default_trigger	= "default-on",
+		},
+		{
+			.name			= "96328A-1241N:red:alarm",
+			.gpio			= 2,
+			.active_low		= 1,
+		},
+		{
+			.name			= "96328A-1241N:green:inet",
+			.gpio			= 3,
+			.active_low		= 1,
+		},
+	},
+
+	.buttons = {
+		{
+			.desc		= "reset",
+			.gpio		= 23,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+	},
+};
+#endif
+
+/*
  * known 6338 boards
  */
 #ifdef CONFIG_BCM63XX_CPU_6338
@@ -740,6 +811,9 @@ static struct board_info __initdata board_WAP5813n = {
  * all boards
  */
 static const struct board_info __initdata *bcm963xx_boards[] = {
+#ifdef CONFIG_BCM63XX_CPU_6328
+	&board_AR5381u,
+#endif
 #ifdef CONFIG_BCM63XX_CPU_6338
 	&board_96338GW,
 	&board_96338W,

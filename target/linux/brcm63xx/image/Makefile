@@ -127,6 +127,15 @@ define Image/Prepare
 	$(call prepare_generic_squashfs,$(KDIR)/fs_mark)
 endef
 
+ifeq ($(CONFIG_TARGET_brcm63xx_brcm6328),y)
+
+# Comtrend AR-5381u
+define Image/Build/Profile/AR5381U
+	$(call Image/Build/CFE,$(1),96328A-1241N,6328,AR-5381u,,--pad 8)
+endef
+
+endif
+
 ifeq ($(CONFIG_TARGET_brcm63xx_brcm6338),y)
 
 # Generic 6338GW
@@ -199,7 +208,7 @@ endef
 define Image/Build/Profile/VR3025UN
         $(call Image/Build/CFE,$(1),96368M-1341N,6368,VR-3025un,,--pad 4)
 endef
-# Comtrend WAP-5813un
+# Comtrend WAP-5813n
 define Image/Build/Profile/WAP5813N
         $(call Image/Build/CFE,$(1),96369R-1231N,6368,WAP-5813n,,--pad 4)
 endef

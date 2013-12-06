@@ -11,6 +11,11 @@ brcm63xx_detect() {
 	board_name=$(awk 'BEGIN{FS="[ \t:/]+"} /system type/ {print $4}' /proc/cpuinfo)
 
 	case "$board_name" in
+	"96328A-1241N")
+		board_model="Comtrend AR-5381u"
+		status_led="AR-5381u:green:power"
+		brcm63xx_has_reset_button="true"
+		;;
 	"96338GW")
 		board_model="Generic 96338GW"
 		status_led="96338GW:green:power"
