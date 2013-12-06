@@ -1,0 +1,31 @@
+--- a/drivers/mtd/maps/physmap.c
++++ b/drivers/mtd/maps/physmap.c
+@@ -88,6 +88,7 @@ static int physmap_flash_probe(struct pl
+ 	struct physmap_flash_data *physmap_data;
+ 	struct physmap_flash_info *info;
+ 	const char **probe_type;
++	const char **part_types;
+ 	int err = 0;
+ 	int i;
+ 	int devices_found = 0;
+@@ -170,7 +171,9 @@ static int physmap_flash_probe(struct pl
+ 		goto err_out;
+ 
+ #ifdef CONFIG_MTD_PARTITIONS
+-	err = parse_mtd_partitions(info->cmtd, part_probe_types,
++	part_types = physmap_data->part_probe_types ? : part_probe_types;
++
++	err = parse_mtd_partitions(info->cmtd, part_types,
+ 				&info->parts, 0);
+ 	if (err > 0) {
+ 		add_mtd_partitions(info->cmtd, info->parts, err);
+--- a/include/linux/mtd/physmap.h
++++ b/include/linux/mtd/physmap.h
+@@ -26,6 +26,7 @@ struct physmap_flash_data {
+ 	unsigned int		nr_parts;
+ 	unsigned int		pfow_base;
+ 	struct mtd_partition	*parts;
++	const char * const      *part_probe_types;
+ };
+ 
+ /*

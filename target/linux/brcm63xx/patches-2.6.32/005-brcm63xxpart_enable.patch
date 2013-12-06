@@ -1,0 +1,27 @@
+--- a/drivers/mtd/Kconfig
++++ b/drivers/mtd/Kconfig
+@@ -181,6 +181,14 @@ config MTD_AR7_PARTS
+ 	---help---
+ 	  TI AR7 partitioning support
+ 
++config MTD_BCM63XX_PARTS
++	tristate "BCM63XX CFE partitioning support"
++	depends on BCM63XX
++	select CRC32
++	help
++	  This provides partions parsing for BCM63xx devices with CFE
++	  bootloaders.
++
+ config MTD_MYLOADER_PARTS
+ 	tristate "MyLoader partition parsing"
+ 	depends on MTD_PARTITIONS && (ADM5120 || ATHEROS_AR231X || ATHEROS_AR71XX)
+--- a/drivers/mtd/Makefile
++++ b/drivers/mtd/Makefile
+@@ -12,6 +12,7 @@ obj-$(CONFIG_MTD_REDBOOT_PARTS) += redbo
+ obj-$(CONFIG_MTD_CMDLINE_PARTS) += cmdlinepart.o
+ obj-$(CONFIG_MTD_AFS_PARTS)	+= afs.o
+ obj-$(CONFIG_MTD_AR7_PARTS)	+= ar7part.o
++obj-$(CONFIG_MTD_BCM63XX_PARTS)	+= bcm63xxpart.o
+ obj-$(CONFIG_MTD_OF_PARTS)      += ofpart.o
+ obj-$(CONFIG_MTD_MYLOADER_PARTS) += myloader.o
+ 
