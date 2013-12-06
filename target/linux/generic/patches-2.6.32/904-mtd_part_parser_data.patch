@@ -1,0 +1,152 @@
+--- a/drivers/mtd/afs.c
++++ b/drivers/mtd/afs.c
+@@ -163,7 +163,7 @@ afs_read_iis(struct mtd_info *mtd, struc
+ 
+ static int parse_afs_partitions(struct mtd_info *mtd,
+                          struct mtd_partition **pparts,
+-                         unsigned long origin)
++                         struct mtd_part_parser_data *data)
+ {
+ 	struct mtd_partition *parts;
+ 	u_int mask, off, idx, sz;
+--- a/drivers/mtd/ar7part.c
++++ b/drivers/mtd/ar7part.c
+@@ -46,7 +46,7 @@ struct ar7_bin_rec {
+ 
+ static int create_mtd_partitions(struct mtd_info *master,
+ 				 struct mtd_partition **pparts,
+-				 unsigned long origin)
++				 struct mtd_part_parser_data *data)
+ {
+ 	struct ar7_bin_rec header;
+ 	unsigned int offset;
+--- a/drivers/mtd/cmdlinepart.c
++++ b/drivers/mtd/cmdlinepart.c
+@@ -302,7 +302,7 @@ static int mtdpart_setup_real(char *s)
+  */
+ static int parse_cmdline_partitions(struct mtd_info *master,
+                              struct mtd_partition **pparts,
+-                             unsigned long origin)
++                             struct mtd_part_parser_data *data)
+ {
+ 	unsigned long offset;
+ 	int i;
+--- a/drivers/mtd/maps/physmap.c
++++ b/drivers/mtd/maps/physmap.c
+@@ -87,6 +87,7 @@ static int physmap_flash_probe(struct pl
+ {
+ 	struct physmap_flash_data *physmap_data;
+ 	struct physmap_flash_info *info;
++	struct mtd_part_parser_data *pp_data;
+ 	const char **probe_type;
+ 	const char **part_types;
+ 	int err = 0;
+@@ -172,9 +173,10 @@ static int physmap_flash_probe(struct pl
+ 
+ #ifdef CONFIG_MTD_PARTITIONS
+ 	part_types = physmap_data->part_probe_types ? : part_probe_types;
++	pp_data = physmap_data->pp_data ? physmap_data->pp_data : NULL;
+ 
+ 	err = parse_mtd_partitions(info->cmtd, part_types,
+-				&info->parts, 0);
++				&info->parts, pp_data);
+ 	if (err > 0) {
+ 		add_mtd_partitions(info->cmtd, info->parts, err);
+ 		info->nr_parts = err;
+--- a/drivers/mtd/mtdpart.c
++++ b/drivers/mtd/mtdpart.c
+@@ -833,7 +833,7 @@ int deregister_mtd_parser(struct mtd_par
+ EXPORT_SYMBOL_GPL(deregister_mtd_parser);
+ 
+ int parse_mtd_partitions(struct mtd_info *master, const char **types,
+-			 struct mtd_partition **pparts, unsigned long origin)
++			 struct mtd_partition **pparts, struct mtd_part_parser_data **ppdata)
+ {
+ 	struct mtd_part_parser *parser;
+ 	int ret = 0;
+@@ -847,7 +847,7 @@ int parse_mtd_partitions(struct mtd_info
+ 			       *types);
+ 			continue;
+ 		}
+-		ret = (*parser->parse_fn)(master, pparts, origin);
++		ret = (*parser->parse_fn)(master, pparts, ppdata);
+ 		if (ret > 0) {
+ 			printk(KERN_NOTICE "%d %s partitions found on MTD device %s\n",
+ 			       ret, parser->name, master->name);
+--- a/drivers/mtd/redboot.c
++++ b/drivers/mtd/redboot.c
+@@ -41,7 +41,7 @@ static inline int redboot_checksum(struc
+ 
+ static int parse_redboot_partitions(struct mtd_info *master,
+                              struct mtd_partition **pparts,
+-                             unsigned long fis_origin)
++                             struct mtd_part_parser_data *data)
+ {
+ 	unsigned long max_offset = 0;
+ 	int nrparts = 0;
+@@ -182,8 +182,8 @@ static int parse_redboot_partitions(stru
+ 			goto out;
+ 		}
+ 		new_fl->img = &buf[i];
+-                if (fis_origin) {
+-                        buf[i].flash_base -= fis_origin;
++                if (data->origin) {
++                        buf[i].flash_base -= data->origin;
+                 } else {
+                         buf[i].flash_base &= master->size-1;
+                 }
+--- a/include/linux/mtd/partitions.h
++++ b/include/linux/mtd/partitions.h
+@@ -55,6 +55,19 @@ int add_mtd_partitions(struct mtd_info *
+ int del_mtd_partitions(struct mtd_info *);
+ int refresh_mtd_partitions(struct mtd_info *);
+ 
++struct device;
++struct device_node;
++
++/**
++ * struct mtd_part_parser_data - used to pass data to MTD partition parsers.
++ * @origin: for RedBoot, start address of MTD device
++ * @of_node: for OF parsers, device node containing partitioning information
++ */
++struct mtd_part_parser_data {
++	unsigned long origin;
++	struct device_node *of_node;
++};
++
+ /*
+  * Functions dealing with the various ways of partitioning the space
+  */
+@@ -63,19 +76,17 @@ struct mtd_part_parser {
+ 	struct list_head list;
+ 	struct module *owner;
+ 	const char *name;
+-	int (*parse_fn)(struct mtd_info *, struct mtd_partition **, unsigned long);
++	int (*parse_fn)(struct mtd_info *, struct mtd_partition **,
++				struct mtd_part_parser_data *);
+ };
+ 
+ extern int register_mtd_parser(struct mtd_part_parser *parser);
+ extern int deregister_mtd_parser(struct mtd_part_parser *parser);
+ extern int parse_mtd_partitions(struct mtd_info *master, const char **types,
+-				struct mtd_partition **pparts, unsigned long origin);
++				struct mtd_partition **pparts, struct mtd_part_parser_data **ppdata);
+ 
+ #define put_partition_parser(p) do { module_put((p)->owner); } while(0)
+ 
+-struct device;
+-struct device_node;
+-
+ int __devinit of_mtd_parse_partitions(struct device *dev,
+                                       struct device_node *node,
+                                       struct mtd_partition **pparts);
+--- a/include/linux/mtd/physmap.h
++++ b/include/linux/mtd/physmap.h
+@@ -27,6 +27,7 @@ struct physmap_flash_data {
+ 	unsigned int		pfow_base;
+ 	struct mtd_partition	*parts;
+ 	const char * const      *part_probe_types;
++	struct mtd_part_parser_data *pp_data;
+ };
+ 
+ /*

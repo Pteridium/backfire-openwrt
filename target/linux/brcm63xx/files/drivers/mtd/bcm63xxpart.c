@@ -41,7 +41,7 @@
 
 static int bcm63xx_parse_cfe_partitions(struct mtd_info *master,
 					struct mtd_partition **pparts,
-					unsigned long origin)
+					struct mtd_part_parser_data *data)
 {
 	/* CFE, NVRAM and global Linux are always present */
 	int nrparts = 3, curpart = 0;
