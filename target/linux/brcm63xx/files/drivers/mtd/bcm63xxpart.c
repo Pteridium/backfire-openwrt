@@ -4,7 +4,7 @@
  * Copyright © 2006-2008  Florian Fainelli <florian@openwrt.org>
  *			  Mike Albon <malbon@openwrt.org>
  * Copyright © 2009-2010  Daniel Dickinson <openwrt@cshore.neomailbox.net>
- * Copyright © 2011 Jonas Gorski <jonas.gorski@gmail.com>
+ * Copyright © 2011-2013  Jonas Gorski <jonas.gorski@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,6 +53,8 @@ static int bcm63xx_parse_cfe_partitions(struct mtd_info *master,
 	unsigned int rootfslen, kernellen, sparelen, totallen;
 	unsigned int cfelen, nvramlen;
 	unsigned int cfe_erasesize;
+	unsigned int caldatalen1 = 0, caldataaddr1 = 0;
+	unsigned int caldatalen2 = 0, caldataaddr2 = 0;
 	int i;
 	u32 computed_crc;
 	bool rootfs_first = false;
@@ -66,8 +68,25 @@ static int bcm63xx_parse_cfe_partitions(struct mtd_info *master,
 	cfelen = cfe_erasesize;
 
 	nvramlen = bcm63xx_nvram_get_psi_size() * SZ_1K;
-	nvramlen = roundup(nvramlen, cfe_erasesize); 
+	nvramlen = roundup(nvramlen, cfe_erasesize);
 	nvramaddr = master->size - nvramlen;
+
+	if (data) {
+		if (data->caldata[0]) {
+			caldatalen1 = cfe_erasesize;
+			caldataaddr1 = rounddown(data->caldata[0],
+						 cfe_erasesize);
+		}
+		if (data->caldata[1]) {
+			caldatalen2 = cfe_erasesize;
+			caldataaddr2 = rounddown(data->caldata[1],
+						 cfe_erasesize);
+		}
+		if (caldataaddr1 == caldataaddr2) {
+			caldataaddr2 = 0;
+			caldatalen2 = 0;
+		}
+	}
 
 	/* Allocate memory for buffer */
 	buf = vmalloc(sizeof(struct bcm_tag));
@@ -75,8 +94,8 @@ static int bcm63xx_parse_cfe_partitions(struct mtd_info *master,
 		return -ENOMEM;
 
 	/* Get the tag */
-	ret = master->read(master, master->erasesize, sizeof(struct bcm_tag),
-			&retlen, (void *)buf);
+	ret = master->read(master, cfelen, sizeof(struct bcm_tag), &retlen,
+		       (void *)buf);
 
 	if (retlen != sizeof(struct bcm_tag)) {
 		vfree(buf);
@@ -119,13 +138,19 @@ static int bcm63xx_parse_cfe_partitions(struct mtd_info *master,
 		rootfsaddr = 0;
 		spareaddr = cfelen;
 	}
-	sparelen = nvramaddr - spareaddr;
+	sparelen = min_not_zero(nvramaddr, caldataaddr1) - spareaddr;
 
 	/* Determine number of partitions */
 	if (rootfslen > 0)
 		nrparts++;
 
 	if (kernellen > 0)
+		nrparts++;
+
+	if (caldatalen1 > 0)
+		nrparts++;
+
+	if (caldatalen2 > 0)
 		nrparts++;
 
 	/* Ask kernel for more memory */
@@ -165,6 +190,23 @@ static int bcm63xx_parse_cfe_partitions(struct mtd_info *master,
 		curpart++;
 	}
 
+	if (caldatalen1 > 0) {
+		if (caldatalen2 > 0)
+			parts[curpart].name = "cal_data1";
+		else
+			parts[curpart].name = "cal_data";
+		parts[curpart].offset = caldataaddr1;
+		parts[curpart].size = caldatalen1;
+		curpart++;
+	}
+
+	if (caldatalen2 > 0) {
+		parts[curpart].name = "cal_data2";
+		parts[curpart].offset = caldataaddr2;
+		parts[curpart].size = caldatalen2;
+		curpart++;
+	}
+
 	parts[curpart].name = "nvram";
 	parts[curpart].offset = nvramaddr;
 	parts[curpart].size = nvramlen;
@@ -173,13 +215,13 @@ static int bcm63xx_parse_cfe_partitions(struct mtd_info *master,
 	/* Global partition "linux" to make easy firmware upgrade */
 	parts[curpart].name = "linux";
 	parts[curpart].offset = cfelen;
-	parts[curpart].size = nvramaddr - cfelen;
+	parts[curpart].size = min_not_zero(nvramaddr, caldataaddr1) - cfelen;
 
 	for (i = 0; i < nrparts; i++)
 		printk(KERN_INFO "Partition %d is %s offset %llx and length %llx\n", i,
 			parts[i].name, parts[i].offset,	parts[i].size);
 
-	printk(KERN_INFO "Spare partition is offset %x and length %x\n",	spareaddr,
+	printk(KERN_INFO "Spare partition is offset %x and length %x\n", spareaddr,
 		sparelen);
 
 	*pparts = parts;

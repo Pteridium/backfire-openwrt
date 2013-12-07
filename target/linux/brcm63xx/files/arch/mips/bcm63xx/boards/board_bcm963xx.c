@@ -1101,7 +1101,7 @@ int __init board_register_devices(void)
 	if (board.num_spis)
 		spi_register_board_info(board.spis, board.num_spis);
 
-	bcm63xx_flash_register();
+	bcm63xx_flash_register(board.has_caldata, board.caldata);
 
 	/* count number of LEDs defined by this device */
 	while (led_count < ARRAY_SIZE(board.leds) && board.leds[led_count].name)
