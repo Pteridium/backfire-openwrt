@@ -51,24 +51,6 @@ define Image/Build/CFEFIXUP
 		$(7) $(8) $(9) $(10)
 endef
 
-define Image/Build/CFEHW553
-	# Generate the tagged image
-	$(STAGING_DIR_HOST)/bin/imagetag -i $(KDIR)/vmlinux.lzma.cfe -f $(KDIR)/root.$(1) \
-		--output $(BIN_DIR)/openwrt-$(5)-$(1)-cfe.bin \
-		--boardid $(2) --chipid $(3) --entry $(LOADADDR) \
-		--load-addr $(LOADADDR) --tag-version 7 \
-		--block-size 0x20000 --image-offset $(4)
-endef
-
-define Image/Build/CFEHW556
-	# Generate the tagged image
-	$(STAGING_DIR_HOST)/bin/imagetag -i $(KDIR)/vmlinux.lzma.cfe -f $(KDIR)/root.$(1) \
-	--output $(BIN_DIR)/openwrt-$(2)-$(1)-cfe.bin \
-	--boardid $(2) --chipid $(3) --entry $(LOADADDR) \
-	--load-addr $(LOADADDR) --tag-version 8 --rsa-signature "$(5)" \
-	--image-offset $(4) --info1 "$(6)" --block-size 0x20000
-endef
-
 define Image/Build/CFEAGPF
 	# Generate the tagged image
 	$(STAGING_DIR_HOST)/bin/imagetag -i $(KDIR)/vmlinux.lzma.cfe -f $(KDIR)/root.$(1) \
@@ -202,11 +184,11 @@ define Image/Build/Profile/HG520V
 endef
 # Huawei HG553
 define Image/Build/Profile/HG553
-	$(call Image/Build/CFEHW553,$(1),HW553,6358,0x20000,HG553)
+	$(call Image/Build/CFE,$(1),HW553,6358,HG553,,--tag-version 7,--block-size 0x20000,--image-offset 0x20000)
 endef
 # Huawei HG556a
 define Image/Build/Profile/HG556A
-	$(call Image/Build/CFEHW556,$(1),HW556,6358,0x20000,EchoLife_HG556a,OpenWRT-$(REVISION))
+	$(call Image/Build/CFE,$(1),HW556,6358,HG556a,EchoLife_HG556a,--tag-version 8,--block-size 0x20000,--image-offset 0x20000)
 endef
 
 endif
