@@ -46,56 +46,56 @@ static struct board_info board;
  */
 #ifdef CONFIG_BCM63XX_CPU_6328
 static struct board_info __initdata board_AR5381u = {
-	.name                           = "96328A-1241N",
-	.expected_cpu_id                = 0x6328,
+	.name				= "96328A-1241N",
+	.expected_cpu_id		= 0x6328,
 
-	.has_uart0		= 1,
-	.has_pci		= 1,
-	.has_ohci0		= 1,
-	.has_ehci0		= 1,
+	.has_uart0			= 1,
+	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
-	.has_enetsw		= 1,
+	.has_enetsw			= 1,
 	.enetsw = {
 		.used_ports = {
 			[0] = {
-				.used		= 1,
-				.phy_id		= 1,
-				.name		= "Port 1",
+				.used	= 1,
+				.phy_id	= 1,
+				.name	= "Port 1",
 			},
 			[1] = {
-				.used		= 1,
-				.phy_id		= 2,
-				.name		= "Port 2",
+				.used	= 1,
+				.phy_id	= 2,
+				.name	= "Port 2",
 			},
 			[2] = {
-				.used		= 1,
-				.phy_id		= 3,
-				.name		= "Port 3",
+				.used	= 1,
+				.phy_id	= 3,
+				.name	= "Port 3",
 			},
 			[3] = {
-				.used		= 1,
-				.phy_id		= 4,
-				.name		= "Port 4",
+				.used	= 1,
+				.phy_id	= 4,
+				.name	= "Port 4",
 			},
 		},
 	},
 
 	.leds = {
 		{
-			.name			= "96328A-1241N:green:power",
-			.gpio			= 4,
-			.active_low		= 1,
-			.default_trigger	= "default-on",
+			.name		= "AR-5381u:green:power",
+			.gpio		= 4,
+			.active_low	= 1,
+			.default_trigger = "default-on",
 		},
 		{
-			.name			= "96328A-1241N:red:alarm",
-			.gpio			= 2,
-			.active_low		= 1,
+			.name		= "AR-5381u:red:alarm",
+			.gpio		= 2,
+			.active_low	= 1,
 		},
 		{
-			.name			= "96328A-1241N:green:inet",
-			.gpio			= 3,
-			.active_low		= 1,
+			.name		= "AR-5381u:green:inet",
+			.gpio		= 3,
+			.active_low	= 1,
 		},
 	},
 
@@ -121,13 +121,13 @@ static struct board_info __initdata board_96338GW = {
 	.expected_cpu_id		= 0x6338,
 
 	.has_uart0			= 1,
+	.has_ohci0			= 1,
+
 	.has_enet0			= 1,
 	.enet0 = {
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
-
-	.has_ohci0			= 1,
 
 	.leds = {
 		{
@@ -164,6 +164,7 @@ static struct board_info __initdata board_96338W = {
 	.expected_cpu_id		= 0x6338,
 
 	.has_uart0			= 1,
+
 	.has_enet0			= 1,
 	.enet0 = {
 		.force_speed_100	= 1,
@@ -222,15 +223,15 @@ static struct board_info __initdata board_96348GW_11 = {
 	.expected_cpu_id		= 0x6348,
 
 	.has_uart0			= 1,
-	.has_enet0			= 1,
-	.has_enet1			= 1,
 	.has_pci			= 1,
 
+	.has_enet0			= 1,
 	.enet0 = {
 		.has_phy		= 1,
 		.use_internal_phy	= 1,
 	},
 
+	.has_enet1			= 1,
 	.enet1 = {
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
@@ -286,17 +287,15 @@ static struct board_info __initdata board_CT5621 = {
 	.expected_cpu_id		= 0x6348,
 
 	.has_uart0			= 1,
-	.has_enet1			= 1,
 	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
+	.has_enet1			= 1,
 	.enet1 = {
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
-
-	.has_ohci0			= 1,
-	.has_pccard			= 1,
-	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -329,17 +328,15 @@ static struct board_info __initdata board_CT536PLUS = {
 	.expected_cpu_id		= 0x6348,
 
 	.has_uart0			= 1,
-	.has_enet1			= 1,
 	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
+	.has_enet1			= 1,
 	.enet1 = {
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
-
-	.has_ohci0			= 1,
-	.has_pccard			= 1,
-	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -372,17 +369,15 @@ static struct board_info __initdata board_CT5361 = {
 	.expected_cpu_id		= 0x6348,
 
 	.has_uart0			= 1,
-	.has_enet1			= 1,
 	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
+	.has_enet1			= 1,
 	.enet1 = {
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
-
-	.has_ohci0			= 1,
-	.has_pccard			= 1,
-	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -420,23 +415,21 @@ static struct board_info __initdata board_DSL2650U = {
 	.expected_cpu_id		= 0x6358,
 
 	.has_uart0			= 1,
-	.has_enet0			= 1,
-	.has_enet1			= 1,
 	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
+	.has_enet0			= 1,
 	.enet0 = {
 		.has_phy		= 1,
 		.use_internal_phy	= 1,
 	},
 
+	.has_enet1			= 1,
 	.enet1 = {
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
-
-	.has_ohci0			= 1,
-	.has_pccard			= 1,
-	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -467,16 +460,15 @@ static struct board_info __initdata board_HG520v = {
 	.expected_cpu_id                = 0x6358,
 
 	.has_uart0			= 1,
-	.has_enet1			= 1,
-	.has_pci                        = 1,
+	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
+	.has_enet1			= 1,
 	.enet1 = {
 		.force_speed_100        = 1,
 		.force_duplex_full      = 1,
 	},
-
-	.has_ohci0			= 1,
-	.has_ehci0			= 1,
 
 	.leds = {
 		{
@@ -503,18 +495,17 @@ static struct board_info __initdata board_HG553 = {
 	.expected_cpu_id                = 0x6358,
 
 	.has_uart0			= 1,
-	.has_enet1                      = 1,
 	.has_pci                        = 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
+	.has_enet1                      = 1,
 	.enet1 = {
 		.has_phy		= 1,
 		.phy_id			= 0,
 		.force_speed_100        = 1,
 		.force_duplex_full      = 1,
 	},
-
-	.has_ohci0 = 1,
-	.has_ehci0 = 1,
 
 	.leds = {
 		{
@@ -596,8 +587,10 @@ static struct board_info __initdata board_VR3025u = {
 
 	.has_uart0			= 1,
 	.has_pci			= 1,
-	.has_enetsw			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
+	.has_enetsw			= 1,
 	.enetsw = {
 		.used_ports = {
 			[0] = {
@@ -666,8 +659,10 @@ static struct board_info __initdata board_VR3025un = {
 
 	.has_uart0			= 1,
 	.has_pci			= 1,
-	.has_enetsw			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
 
+	.has_enetsw			= 1,
 	.enetsw = {
 		.used_ports = {
 			[0] = {
