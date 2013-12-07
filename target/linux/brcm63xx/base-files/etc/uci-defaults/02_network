@@ -21,6 +21,7 @@ case "$board_name" in
 "CT-536+" |\
 "CT-5361" |\
 "HW553" |\
+"HW556"* |\
 "HW6358GW_B")
 	ucidef_set_interface_lan "eth0"
 	;;

@@ -8,6 +8,9 @@ case "$board_name" in
 "HW553")
 	ucidef_set_led_netdev "lan" "LAN" "HG553:blue:lan" "eth0"
 	;;
+"HW556"*)
+	ucidef_set_led_netdev "lan" "LAN" "HG556a:red:ppp" "eth0"
+	;;
 esac
 
 ucidef_commit_leds

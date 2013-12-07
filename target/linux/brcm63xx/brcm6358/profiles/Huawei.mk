@@ -15,3 +15,12 @@ define Profile/HG553/Description
 	Package set for the HG553
 endef
 $(eval $(call Profile,HG553))
+
+define Profile/HG556A
+  NAME:=Huawei HG556a
+  PACKAGES:=kmod-ath9k wpad-mini kmod-usb-core kmod-usb-ohci kmod-usb2
+endef
+define Profile/HG556A/Description
+	Package set for the HG556a
+endef
+$(eval $(call Profile,HG556A))

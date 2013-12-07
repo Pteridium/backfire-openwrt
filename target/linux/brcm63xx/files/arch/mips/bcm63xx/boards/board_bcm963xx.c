@@ -577,6 +577,477 @@ static struct board_info __initdata board_HG553 = {
 		},
 	},
 };
+
+static struct board_info __initdata board_HG556 = {
+	.name				= "HW556",
+	.expected_cpu_id		= 0x6358,
+
+	.has_uart0			= 1,
+	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
+
+	.has_enet1			= 1,
+	.enet1 = {
+		.has_phy		= 1,
+		.phy_id			= 0,
+		.force_speed_100	= 1,
+		.force_duplex_full	= 1,
+	},
+
+	.has_caldata			= 1,
+	.caldata = {
+		{
+			.caldata_offset	= 0xe00000,
+		},
+	},
+
+	.leds = {
+		{
+			.name		= "HW556:red:power",
+			.gpio		= 3,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+		{
+			.name		= "HW556:red:all",
+			.gpio		= 6,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+	},
+
+	.buttons = {
+		{
+			.desc		= "help",
+			.gpio		= 8,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_HELP,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "wlan",
+			.gpio		= 9,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_WPS_BUTTON,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "restart",
+			.gpio		= 10,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "reset",
+			.gpio		= 11,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_CONFIG,
+			.threshold	= 3,
+		},
+	},
+};
+
+static struct board_info __initdata board_HG556_A = {
+	.name				= "HW556_A",
+	.expected_cpu_id		= 0x6358,
+
+	.has_uart0			= 1,
+	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
+
+	.has_enet1			= 1,
+	.enet1 = {
+		.has_phy		= 1,
+		.phy_id			= 0,
+		.force_speed_100	= 1,
+		.force_duplex_full	= 1,
+	},
+
+	.has_caldata			= 1,
+	.caldata = {
+		{
+			.caldata_offset	= 0xeffe00,
+			.slot		= 1,
+			.eeprom		= "rt2x00.eeprom",
+		},
+	},
+
+	.leds = {
+		{
+			.name		= "HG556a:green:lan1",
+			.gpio		= 0,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:green:lan2",
+			.gpio		= 1,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:ppp",
+			.gpio		= 2,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:power",
+			.gpio		= 3,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+		{
+			.name		= "HG556a:red:message",
+			.gpio		= 12,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan1",
+			.gpio		= 13,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:usb",
+			.gpio		= 15,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan2",
+			.gpio		= 22,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:green:lan3",
+			.gpio		= 23,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan3",
+			.gpio		= 26,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:green:lan4",
+			.gpio		= 27,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan4",
+			.gpio		= 28,
+			.active_low	= 1,
+		},
+	},
+
+	.buttons = {
+		{
+			.desc		= "help",
+			.gpio		= 8,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_HELP,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "wlan",
+			.gpio		= 9,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_WPS_BUTTON,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "restart",
+			.gpio		= 10,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "reset",
+			.gpio		= 11,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_CONFIG,
+			.threshold	= 3,
+		},
+	},
+};
+
+static struct board_info __initdata board_HG556_B = {
+	.name				= "HW556_B",
+	.expected_cpu_id		= 0x6358,
+
+	.has_uart0			= 1,
+	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
+
+	.has_enet1			= 1,
+	.enet1 = {
+		.has_phy		= 1,
+		.phy_id			= 0,
+		.force_speed_100	= 1,
+		.force_duplex_full	= 1,
+	},
+
+	.has_caldata			= 1,
+	.caldata = {
+		{
+			.vendor		= PCI_VENDOR_ID_ATHEROS,
+			.caldata_offset	= 0xf7e000,
+			.slot		= 1,
+			.endian_check	= 1,
+			.led_pin		= 2,
+		},
+	},
+
+	.leds = {
+		{
+			.name		= "HG556a:red:message",
+			.gpio		= 0,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:usb",
+			.gpio		= 1,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:ppp",
+			.gpio		= 2,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:power",
+			.gpio		= 3,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+		{
+			.name		= "HG556a:red:all",
+			.gpio		= 6,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+
+		{
+			.name		= "HG556a:green:lan1",
+			.gpio		= 12,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan1",
+			.gpio		= 13,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:green:lan2",
+			.gpio		= 15,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan2",
+			.gpio		= 22,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:green:lan3",
+			.gpio		= 23,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan3",
+			.gpio		= 26,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:green:lan4",
+			.gpio		= 27,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan4",
+			.gpio		= 28,
+			.active_low	= 1,
+		},
+	},
+
+	.buttons = {
+		{
+			.desc		= "help",
+			.gpio		= 8,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_HELP,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "wlan",
+			.gpio		= 9,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_WPS_BUTTON,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "restart",
+			.gpio		= 10,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "reset",
+			.gpio		= 11,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_CONFIG,
+			.threshold	= 3,
+		},
+	},
+};
+
+static struct board_info __initdata board_HG556_C = {
+	.name				= "HW556_C",
+	.expected_cpu_id		= 0x6358,
+
+	.has_uart0			= 1,
+	.has_pci			= 1,
+	.has_ohci0			= 1,
+	.has_ehci0			= 1,
+
+	.has_enet1			= 1,
+	.enet1 = {
+		.has_phy		= 1,
+		.phy_id			= 0,
+		.force_speed_100	= 1,
+		.force_duplex_full	= 1,
+	},
+
+	.has_caldata			= 1,
+	.caldata = {
+		{
+			.vendor		= PCI_VENDOR_ID_ATHEROS,
+			.caldata_offset	= 0xefe000,
+			.slot		= 1,
+			.endian_check	= 1,
+			.led_pin		= 2,
+		},
+	},
+
+	.leds = {
+		{
+			.name		= "HG556a:red:message",
+			.gpio		= 0,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:usb",
+			.gpio		= 1,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:ppp",
+			.gpio		= 2,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:power",
+			.gpio		= 3,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+		{
+			.name		= "HG556a:red:all",
+			.gpio		= 6,
+			.active_low	= 1,
+			.default_trigger = "default-on",
+		},
+
+		{
+			.name		= "HG556a:green:lan1",
+			.gpio		= 12,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan1",
+			.gpio		= 13,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:green:lan2",
+			.gpio		= 15,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan2",
+			.gpio		= 22,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:green:lan3",
+			.gpio		= 23,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan3",
+			.gpio		= 26,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:green:lan4",
+			.gpio		= 27,
+			.active_low	= 1,
+		},
+		{
+			.name		= "HG556a:red:lan4",
+			.gpio		= 28,
+			.active_low	= 1,
+		},
+	},
+
+	.buttons = {
+		{
+			.desc		= "help",
+			.gpio		= 8,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_HELP,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "wlan",
+			.gpio		= 9,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_WPS_BUTTON,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "restart",
+			.gpio		= 10,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_RESTART,
+			.threshold	= 3,
+		},
+		{
+			.desc		= "reset",
+			.gpio		= 11,
+			.active_low	= 1,
+			.type		= EV_KEY,
+			.code		= KEY_CONFIG,
+			.threshold	= 3,
+		},
+	},
+};
 #endif
 
 /*
@@ -828,6 +1299,10 @@ static const struct board_info __initdata *bcm963xx_boards[] = {
 	&board_DSL2650U,
 	&board_HG520v,
 	&board_HG553,
+	&board_HG556,
+	&board_HG556_A,
+	&board_HG556_B,
+	&board_HG556_C,
 #endif
 #ifdef CONFIG_BCM63XX_CPU_6368
 	&board_VR3025u,
@@ -875,6 +1350,32 @@ static void __init boardid_fixup(u8 *boot_addr)
 {
 	struct bcm_tag *tag = (struct bcm_tag *)(boot_addr + CFE_OFFSET_64K);
 	char *board_name = (char *)bcm63xx_nvram_get_name();
+
+	if (BCMCPU_IS_6358()) {
+		if (!strcmp(board_name, "HW556")) {
+			/*
+			 * HW556 has different wlan caldatas depending on
+			 * hardware version.
+			 * Detect hardware version and change board id
+			 */
+			u8 cal_data_ath9k[4] = { 0xa5, 0x5a, 0, 0 };
+			u8 cal_data_rt3062[4] = { 0x62, 0x30, 1, 0 };
+
+			if (!memcmp(boot_addr + 0xeffe00,
+				    &cal_data_rt3062, 4)) {
+				/* Ralink 0xeffe00 */
+				memcpy(board_name, "HW556_A", 7);
+			} else if (!memcmp(boot_addr + 0xf7e000,
+					   &cal_data_ath9k, 4)) {
+				/* Atheros 0xf7e000 */
+				memcpy(board_name, "HW556_B", 7);
+			} else if (!memcmp(boot_addr + 0xefe000,
+					   &cal_data_ath9k, 4)) {
+				/* Atheros 0xefe000 */
+				memcpy(board_name, "HW556_C", 7);
+			}
+		}
+	}
 
 	/* check if bcm_tag is at 64k offset */
 	if (strncmp(board_name, tag->board_id, BOARDID_LEN) != 0) {

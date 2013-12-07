@@ -67,6 +67,10 @@ static int bcm63xx_parse_cfe_partitions(struct mtd_info *master,
 
 	cfelen = cfe_erasesize;
 
+	/* Fix HW556 MX29LV128DB */
+	if (!strncmp(bcm63xx_nvram_get_name(), "HW556", 5))
+		cfelen = 0x20000;
+
 	nvramlen = bcm63xx_nvram_get_psi_size() * SZ_1K;
 	nvramlen = roundup(nvramlen, cfe_erasesize);
 	nvramaddr = master->size - nvramlen;

@@ -71,6 +71,26 @@ brcm63xx_detect() {
 		status_led="HG553:blue:power"
 		brcm63xx_has_reset_button="true"
 		;;
+	"HW556")
+		board_model="Huawei HG556a (Unknown)"
+		status_led="HG556a:red:power"
+		brcm63xx_has_reset_button="true"
+		;;
+	"HW556_A")
+		board_model="Huawei HG556a (Ver A - Ralink)"
+		status_led="HG556a:red:power"
+		brcm63xx_has_reset_button="true"
+		;;
+	"HW556_B")
+		board_model="Huawei HG556a (Ver B - Atheros)"
+		status_led="HG556a:red:power"
+		brcm63xx_has_reset_button="true"
+		;;
+	"HW556_C")
+		board_model="Huawei HG556a (Ver C - Atheros)"
+		status_led="HG556a:red:power"
+		brcm63xx_has_reset_button="true"
+		;;
 	"HW6358GW_B")
 		board_model="Huawei HG520v"
 		status_led="HG520v:green:ppp"
