@@ -503,8 +503,6 @@ static struct board_info __initdata board_HG553 = {
 
 	.has_enet1			= 1,
 	.enet1 = {
-		.has_phy		= 1,
-		.phy_id			= 0,
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
@@ -589,8 +587,6 @@ static struct board_info __initdata board_HG556 = {
 
 	.has_enet1			= 1,
 	.enet1 = {
-		.has_phy		= 1,
-		.phy_id			= 0,
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
@@ -664,8 +660,6 @@ static struct board_info __initdata board_HG556_A = {
 
 	.has_enet1			= 1,
 	.enet1 = {
-		.has_phy		= 1,
-		.phy_id			= 0,
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
@@ -790,8 +784,6 @@ static struct board_info __initdata board_HG556_B = {
 
 	.has_enet1			= 1,
 	.enet1 = {
-		.has_phy		= 1,
-		.phy_id			= 0,
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
@@ -925,8 +917,6 @@ static struct board_info __initdata board_HG556_C = {
 
 	.has_enet1			= 1,
 	.enet1 = {
-		.has_phy		= 1,
-		.phy_id			= 0,
 		.force_speed_100	= 1,
 		.force_duplex_full	= 1,
 	},
