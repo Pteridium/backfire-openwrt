@@ -1,0 +1,169 @@
+--- a/drivers/mtd/devices/m25p80.c
++++ b/drivers/mtd/devices/m25p80.c
+@@ -80,6 +80,7 @@ struct m25p {
+ 	unsigned		partitioned:1;
+ 	u8			erase_opcode;
+ 	u8			command[CMD_SIZE + FAST_READ_DUMMY_BYTE];
++	int			max_transfer_len; 
+ };
+ 
+ static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
+@@ -299,10 +300,9 @@ static int m25p80_erase(struct mtd_info
+  * Read an address range from the flash chip.  The address range
+  * may be any size provided it is within the physical boundaries.
+  */
+-static int m25p80_read(struct mtd_info *mtd, loff_t from, size_t len,
++static int __m25p80_read(struct m25p *flash, loff_t from, size_t len,
+ 	size_t *retlen, u_char *buf)
+ {
+-	struct m25p *flash = mtd_to_m25p(mtd);
+ 	struct spi_transfer t[2];
+ 	struct spi_message m;
+ 
+@@ -365,6 +365,29 @@ static int m25p80_read(struct mtd_info *
+ 	return 0;
+ }
+ 
++static int m25p80_read(struct mtd_info *mtd, loff_t from, size_t len,
++			size_t *retlen, u_char *buf)
++{
++	struct m25p *flash = mtd_to_m25p(mtd);
++	size_t off;
++	size_t read_len = flash->max_transfer_len;
++	size_t part_len;
++	int ret = 0;
++
++	if (!read_len)
++		return __m25p80_read(flash, from, len, retlen, buf);
++
++		*retlen = 0;
++
++	for (off = 0; off < len && !ret; off += read_len) {
++		ret = __m25p80_read(flash, from + off, min(len - off, read_len),
++							&part_len, buf + off);
++		*retlen += part_len;
++	}
++
++	return ret;
++}
++
+ /*
+  * Write an address range to the flash chip.  Data must be written in
+  * FLASH_PAGESIZE chunks.  The address range may be any size provided
+@@ -747,6 +770,8 @@ static int __devinit m25p_probe(struct s
+ 	struct m25p			*flash;
+ 	struct flash_info		*info;
+ 	unsigned			i;
++	struct mtd_part_parser_data	ppdata;
++	int err = 0;
+ 
+ 	/* Platform data helps sort out which chip type we have, as
+ 	 * well as how this board partitions it.  If we don't have
+@@ -785,10 +810,16 @@ static int __devinit m25p_probe(struct s
+ 	if (!info)
+ 		return -ENODEV;
+ 
++	if (data && data->pp_data)
++		memcpy(&ppdata, data->pp_data, sizeof(ppdata));
++
+ 	flash = kzalloc(sizeof *flash, GFP_KERNEL);
+ 	if (!flash)
+ 		return -ENOMEM;
+ 
++	if (data)
++		flash->max_transfer_len = data->max_transfer_len;
++
+ 	flash->spi = spi;
+ 	mutex_init(&flash->lock);
+ 	dev_set_drvdata(&spi->dev, flash);
+@@ -859,39 +890,24 @@ static int __devinit m25p_probe(struct s
+ 	/* partitions should match sector boundaries; and it may be good to
+ 	 * use readonly partitions for writeprotected sectors (BP2..BP0).
+ 	 */
+-	if (mtd_has_partitions()) {
+-		struct mtd_partition	*parts = NULL;
+-		int			nr_parts = 0;
+-
+-		if (mtd_has_cmdlinepart()) {
+-			static const char *part_probes[]
+-					= { "cmdlinepart", NULL, };
+-
+-			nr_parts = parse_mtd_partitions(&flash->mtd,
+-					part_probes, &parts, 0);
+-		}
+-
+-		if (nr_parts <= 0 && data && data->parts) {
+-			parts = data->parts;
+-			nr_parts = data->nr_parts;
+-		}
++#ifdef CONFIG_MTD_PARTITIONS
++	err = parse_mtd_partitions(&flash->mtd,
++				data ? data->part_probe_types : NULL,
++				&data->parts,
++				&ppdata);
++	if (err > 0) {
++		add_mtd_partitions(&flash->mtd, data->parts, err);
++		data->nr_parts = err;
++		return 0;
++	}
+ 
+-		if (nr_parts > 0) {
+-			for (i = 0; i < nr_parts; i++) {
+-				DEBUG(MTD_DEBUG_LEVEL2, "partitions[%d] = "
+-					"{.name = %s, .offset = 0x%llx, "
+-						".size = 0x%llx (%lldKiB) }\n",
+-					i, parts[i].name,
+-					(long long)parts[i].offset,
+-					(long long)parts[i].size,
+-					(long long)(parts[i].size >> 10));
+-			}
+-			flash->partitioned = 1;
+-			return add_mtd_partitions(&flash->mtd, parts, nr_parts);
+-		}
+-	} else if (data && data->nr_parts)
+-		dev_warn(&spi->dev, "ignoring %d default partitions on %s\n",
+-				data->nr_parts, data->name);
++	if (data->nr_parts) {
++		printk(KERN_NOTICE "Using physmap partition information\n");
++		add_mtd_partitions(&flash->mtd, &data->parts,
++				   data->nr_parts);
++		return 0;
++	}
++#endif
+ 
+ 	return add_mtd_device(&flash->mtd) == 1 ? -ENODEV : 0;
+ }
+--- a/include/linux/spi/flash.h
++++ b/include/linux/spi/flash.h
+@@ -3,6 +3,8 @@
+ 
+ struct mtd_partition;
+ 
++struct mtd_part_parser_data;
++
+ /**
+  * struct flash_platform_data: board-specific flash data
+  * @name: optional flash device name (eg, as used with mtdparts=)
+@@ -10,6 +12,11 @@ struct mtd_partition;
+  * @nr_parts: number of mtd_partitions for static partitoning
+  * @type: optional flash device type (e.g. m25p80 vs m25p64), for use
+  *	with chips that can't be queried for JEDEC or other IDs
++ * @part_probe_types: optional list of MTD parser names to use for
++ *  partitioning
++ * @pp_data: optional partition parser data.
++ * @max_transfer_len: option maximum read/write length limitation for
++ *  SPI controllers not able to transfer any length commands.
+  *
+  * Board init code (in arch/.../mach-xxx/board-yyy.c files) can
+  * provide information about SPI flash parts (such as DataFlash) to
+@@ -25,6 +32,10 @@ struct flash_platform_data {
+ 
+ 	char		*type;
+ 
++	const char	**part_probe_types;
++	struct mtd_part_parser_data *pp_data;
++
++	unsigned int	max_transfer_len;
+ 	/* we'll likely add more ... use JEDEC IDs, etc */
+ };
+ 
