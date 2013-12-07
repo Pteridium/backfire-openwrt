@@ -458,8 +458,8 @@ static struct board_info __initdata board_DSL2650U = {
 };
 
 static struct board_info __initdata board_HG520v = {
-	.name                           = "HW6358GW_B",
-	.expected_cpu_id                = 0x6358,
+	.name				= "HW6358GW_B",
+	.expected_cpu_id		= 0x6358,
 
 	.has_uart0			= 1,
 	.has_pci			= 1,
@@ -468,8 +468,8 @@ static struct board_info __initdata board_HG520v = {
 
 	.has_enet1			= 1,
 	.enet1 = {
-		.force_speed_100        = 1,
-		.force_duplex_full      = 1,
+		.force_speed_100	= 1,
+		.force_duplex_full	= 1,
 	},
 
 	.leds = {
@@ -493,20 +493,20 @@ static struct board_info __initdata board_HG520v = {
 };
 
 static struct board_info __initdata board_HG553 = {
-	.name                           = "HW553",
-	.expected_cpu_id                = 0x6358,
+	.name				= "HW553",
+	.expected_cpu_id		= 0x6358,
 
 	.has_uart0			= 1,
-	.has_pci                        = 1,
+	.has_pci			= 1,
 	.has_ohci0			= 1,
 	.has_ehci0			= 1,
 
-	.has_enet1                      = 1,
+	.has_enet1			= 1,
 	.enet1 = {
 		.has_phy		= 1,
 		.phy_id			= 0,
-		.force_speed_100        = 1,
-		.force_duplex_full      = 1,
+		.force_speed_100	= 1,
+		.force_duplex_full	= 1,
 	},
 
 	.leds = {
@@ -947,7 +947,7 @@ void __init board_prom_init(void)
 	/* find board by name */
 	for (i = 0; i < ARRAY_SIZE(bcm963xx_boards); i++) {
 		if (strncmp(board_name, bcm963xx_boards[i]->name,
-			    BCM63XX_NVRAM_NAMELEN))
+				BCM63XX_NVRAM_NAMELEN))
 			continue;
 		/* copy, board desc array is marked initdata */
 		memcpy(&board, bcm963xx_boards[i], sizeof(board));
@@ -960,7 +960,7 @@ void __init board_prom_init(void)
 		memcpy(name, board_name, 16);
 		name[16] = 0;
 		printk(KERN_ERR PFX "unknown bcm963xx board: %s\n",
-		       name);
+			name);
 		return;
 	}
 
@@ -1036,7 +1036,7 @@ static struct platform_device bcm63xx_gpio_leds = {
 };
 
 static struct gpio_buttons_platform_data bcm63xx_gpio_buttons_data = {
-	.poll_interval  = 20,
+	.poll_interval	= 20,
 };
 
 static struct platform_device bcm63xx_gpio_buttons_device = {
@@ -1064,15 +1064,15 @@ int __init board_register_devices(void)
 		bcm63xx_pcmcia_register();
 
 	if (board.has_enet0 &&
-	    !bcm63xx_nvram_get_mac_address(board.enet0.mac_addr))
+		!bcm63xx_nvram_get_mac_address(board.enet0.mac_addr))
 		bcm63xx_enet_register(0, &board.enet0);
 
 	if (board.has_enet1 &&
-	    !bcm63xx_nvram_get_mac_address(board.enet1.mac_addr))
+		!bcm63xx_nvram_get_mac_address(board.enet1.mac_addr))
 		bcm63xx_enet_register(1, &board.enet1);
 
 	if (board.has_enetsw &&
-	    !bcm63xx_nvram_get_mac_address(board.enetsw.mac_addr))
+		!bcm63xx_nvram_get_mac_address(board.enetsw.mac_addr))
 		bcm63xx_enetsw_register(&board.enetsw);
 
 	if (board.has_ehci0)
