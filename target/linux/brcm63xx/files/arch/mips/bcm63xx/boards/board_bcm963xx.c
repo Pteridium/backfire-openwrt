@@ -29,9 +29,11 @@
 #include <bcm63xx_dev_hsspi.h>
 #include <bcm63xx_dev_pcmcia.h>
 #include <bcm63xx_dev_spi.h>
-#include <bcm63xx_dev_usb_ohci.h>
 #include <bcm63xx_dev_usb_ehci.h>
+#include <bcm63xx_dev_usb_ohci.h>
 #include <board_bcm963xx.h>
+#include <pci_ath9k_fixup.h>
+
 #include <bcm_tag.h>
 
 #define PFX	"board_bcm963xx: "
@@ -969,6 +971,7 @@ void __init board_prom_init(void)
 
 #ifdef CONFIG_PCI
 	if (board.has_pci) {
+		bcm63xx_pci_enabled = 1;
 		if (BCMCPU_IS_6348())
 			val |= GPIO_MODE_6348_G2_PCI;
 
@@ -1049,6 +1052,7 @@ int __init board_register_devices(void)
 {
 	int led_count = 0;
 	int button_count = 0;
+	int i;
 
 	if (board.has_uart0)
 		bcm63xx_uart_register(0);
@@ -1083,7 +1087,8 @@ int __init board_register_devices(void)
 	/* Generate MAC address for WLAN and
 	 * register our SPROM */
 #ifdef CONFIG_SSB_PCIHOST
-	if (!bcm63xx_nvram_get_mac_address(bcm63xx_sprom.il0mac)) {
+	if (!board.has_caldata &&
+		!bcm63xx_nvram_get_mac_address(bcm63xx_sprom.il0mac)) {
 		memcpy(bcm63xx_sprom.et0mac, bcm63xx_sprom.il0mac, ETH_ALEN);
 		memcpy(bcm63xx_sprom.et1mac, bcm63xx_sprom.il0mac, ETH_ALEN);
 		if (ssb_arch_set_fallback_sprom(&bcm63xx_sprom) < 0)
@@ -1125,10 +1130,16 @@ int __init board_register_devices(void)
 		platform_device_register(&bcm63xx_gpio_buttons_device);
 	}
 
-#ifdef CONFIG_PCI
-	if (board.has_pci)
-		bcm63xx_pci_register();
-#endif
+	/* register any fixups */
+	for (i = 0; i < board.has_caldata; i++) {
+		switch (board.caldata[i].vendor) {
+		case PCI_VENDOR_ID_ATHEROS:
+			pci_enable_ath9k_fixup(board.caldata[i].slot,
+				board.caldata[i].caldata_offset, board.caldata[i].endian_check,
+				board.caldata[i].led_pin);
+			break;
+		}
+	}
 
 	return 0;
 }

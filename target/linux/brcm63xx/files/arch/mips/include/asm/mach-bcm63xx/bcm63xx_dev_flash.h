@@ -9,6 +9,8 @@ enum {
 	BCM63XX_FLASH_TYPE_NAND,
 };
 
+extern int bcm63xx_attached_flash;
+
 int __init bcm63xx_flash_register(int num_caldata, struct bcm63xx_caldata *caldata);
 
 #endif /* __BCM63XX_FLASH_H */

@@ -15,6 +15,8 @@
 
 #include "pci-bcm63xx.h"
 
+int bcm63xx_pci_enabled;
+
 static struct resource bcm_pci_mem_resource = {
 	.name   = "bcm63xx PCI memory space",
 	.start  = BCM_PCI_MEM_BASE_PA,
@@ -318,8 +320,11 @@ static int __init bcm63xx_register_pci(void)
 	return 0;
 }
 
-int __init bcm63xx_pci_register(void)
+int __init bcm63xx_pci_init(void)
 {
+	if (!bcm63xx_pci_enabled)
+		return -ENODEV;
+
 	switch (bcm63xx_get_cpu_id()) {
 	case BCM6328_CPU_ID:
 		return bcm63xx_register_pcie();
@@ -332,3 +337,4 @@ int __init bcm63xx_pci_register(void)
 	}
 }
 
+arch_initcall(bcm63xx_pci_init);
