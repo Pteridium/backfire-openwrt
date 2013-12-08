@@ -668,6 +668,7 @@ static struct board_info __initdata board_HG556_A = {
 	.has_caldata			= 1,
 	.caldata = {
 		{
+			.vendor		= PCI_VENDOR_ID_RALINK,
 			.caldata_offset	= 0xeffe00,
 			.slot		= 1,
 			.eeprom		= "rt2x00.eeprom",
