@@ -33,6 +33,7 @@
 #include <bcm63xx_dev_usb_ohci.h>
 #include <board_bcm963xx.h>
 #include <pci_ath9k_fixup.h>
+#include <pci_rt2x00_fixup.h>
 
 #include <bcm_tag.h>
 
@@ -1628,6 +1629,10 @@ int __init board_register_devices(void)
 			pci_enable_ath9k_fixup(board.caldata[i].slot,
 				board.caldata[i].caldata_offset, board.caldata[i].endian_check,
 				board.caldata[i].led_pin);
+			break;
+		case PCI_VENDOR_ID_RALINK:
+			pci_enable_rt2x00_fixup(board.caldata[i].slot,
+				board.caldata[i].eeprom);
 			break;
 		}
 	}
